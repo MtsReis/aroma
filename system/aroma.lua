@@ -1,8 +1,8 @@
-local Luna = class()
+local Aroma = pl.class()
 
 -- Default settings
 local videoW, videoH = love.window.getDesktopDimensions()
-Luna.settings = {
+Aroma.settings = {
 	sound = {
 		_tweakable = {"sVolume", "mVolume"},
 		sVolume = 70,
@@ -11,19 +11,19 @@ Luna.settings = {
 
 	video = {
 		_tweakable = {"w", "h", "vsync", "fullscreen"},
-		w = videoW,
-		h = videoH,
+		w = videoW * .9, -- Leave 10% of screen unused
+		h = videoH * .9,
 		vsync = true,
-		fullscreen = true
+		fullscreen = false
 	}
 }
 
--- Update video settings with the values that player defined
-function Luna:updateVideo()
+-- Update video settings with the values that user defined
+function Aroma:updateVideo()
 	love.window.setMode(self.settings.video.w, self.settings.video.h, {
 		fullscreen = self.settings.video.fullscreen,
 		vsync = self.settings.video.vsync
 	})
 end
 
-return Luna
+return Aroma
