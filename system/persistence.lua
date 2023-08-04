@@ -1,8 +1,8 @@
 -- Module responsible for saving and loading files
-class.Persistence()
+local Persistence = pl.class()
 
 function Persistence:saveINI(data, dir, tweakableOnly)
-	data = data or luna.settings
+	data = data or aroma.settings
 	dir = dir or 'settings.cfg'
 	tweakableOnly = (tweakableOnly ~= false) or false -- True as default value
 
@@ -22,13 +22,13 @@ function Persistence:loadSettings(dir)
 
 		-- Iterate over INI sections
 		for section, sectionValue in pairs(userSettings) do
-			if type(sectionValue) == "table" and luna.settings[section] ~= nil then
+			if type(sectionValue) == "table" and aroma.settings[section] ~= nil then
 				-- Load fields in the section if it has tweakable values
-				if luna.settings[section]['_tweakable'] ~= nil then
+				if aroma.settings[section]['_tweakable'] ~= nil then
 					for settingKey, settingValue in pairs(sectionValue) do
 						-- Only load the key if it's tweakable
-						if tablex.find(luna.settings[section]['_tweakable'], settingKey) ~= nil then
-							luna.settings[section][settingKey] = settingValue
+						if pl.tablex.find(aroma.settings[section]['_tweakable'], settingKey) ~= nil then
+							aroma.settings[section][settingKey] = settingValue
 						end
 					end
 				end
@@ -37,21 +37,4 @@ function Persistence:loadSettings(dir)
 	end
 end
 
-function Persistence:loadControls(dir)
-	dir = dir or 'controls.cfg'
-
-	-- Check whether the specified file exists
-	if love.filesystem.getInfo(dir) ~= nil then
-		local userControls = lip.load(dir)
-
-		-- Iterate over INI sections
-		for section, sectionValue in pairs(userControls) do
-			if type(sectionValue) == "table" and InputVerify.commandList[section] ~= nil then
-				-- Load fields in the section if it has tweakable values
-				for controlKey, controlValue in pairs(sectionValue) do
-					InputVerify.commandList[section][controlKey] = controlValue
-				end
-			end
-		end
-	end
-end
+return Persistence
