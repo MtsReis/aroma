@@ -1,18 +1,28 @@
-local DebugMode = class()
+local DebugMode = pl.class()
+
+function DebugMode:load()
+  lovebird = require "lib.lovebird"
+end
 
 function DebugMode:enable()
   -- Settings for Debug Mode
   log.level = "trace"
 end
 
+function DebugMode:update(dt)
+  if (not aroma.debugMode) then
+    disableState("Debug")
+  end
+
+  lovebird.update()
+end
+
 function DebugMode:disable()
   log.level = "warn"
 end
 
-function DebugMode:update(dt)
-  if (not luna.debugMode) then
-    disableState("Debug")
-  end
+function DebugMode:unload()
+  lovebird = nil
 end
 
 return DebugMode

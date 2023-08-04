@@ -1,4 +1,4 @@
-local Bootstrap = class()
+local Bootstrap = pl.class()
 
 function Bootstrap:load()
   -----------------------------------------------
@@ -25,33 +25,32 @@ function Bootstrap:load()
   local extension = jit.os == "Windows" and "dll" or jit.os == "Linux" and "so" or jit.os == "OSX" and "dylib"
   package.cpath = string.format("%s;%s/%s/?.%s", package.cpath, love.filesystem.getSaveDirectory(), dest_dir, extension)
 
-  imgui = require "lib/cimgui"
+  imgui = require 'lib.cimgui'
 
   -----------------------------------------------
   --                  settings
   -----------------------------------------------
   -- Load the user .cfg files
   Persistence:loadSettings()
-  Persistence:loadControls()
 
   -- Update video with the user settings
-  luna:updateVideo()
+  aroma:updateVideo()
 
   -----------------------------------------------
   --                   states
   -----------------------------------------------
-  if luna.debugMode then
-    addState(require("states/Debug"), "Debug", 10)
+  if aroma.debugMode then
+    addState(require 'states.Debug', "Debug", 10)
   end
 
-  addState(require("states/Root"), "Root", 1)
-  addState(require("states/GUI"), "GUI")
+  addState(require 'states.Root', "Root", 1)
+  addState(require 'states.GUI', "GUI")
 end
 
 function Bootstrap:enable()
   imgui.love.Init()
 
-  if luna.debugMode then
+  if aroma.debugMode then
     enableState("Debug")
   end
 
