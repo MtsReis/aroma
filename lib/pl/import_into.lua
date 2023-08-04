@@ -9,7 +9,7 @@
 -- If this is `true`, then return a 'shadow table' as the module
 -- See @{01-introduction.md.To_Inject_or_not_to_Inject_|the Guide}
 
--- @module pl.import_into
+-- @module lib.pl.import_into
 
 return function(env)
     local mod
@@ -32,11 +32,11 @@ return function(env)
         List = true, Map = true, Set = true,
         OrderedMap = true, MultiMap = true, Date = true,
     }
-    rawset(env,'utils',require 'lib/pl.utils')
+    rawset(env,'utils',require 'lib.pl.utils')
 
     for name,klass in pairs(env.utils.stdmt) do
         klass.__index = function(t,key)
-            return require ('lib/pl.'..name)[key]
+            return require ('lib.pl.'..name)[key]
         end;
     end
 
@@ -50,7 +50,7 @@ return function(env)
     if prevenvmt then
         _prev_index = prevenvmt.__index
         if prevenvmt.__newindex then
-            gmt.__index = prevenvmt.__newindex
+            gmt.__newindex = prevenvmt.__newindex
         end
     end
 
@@ -63,8 +63,8 @@ return function(env)
         -- either true, or the name of the module containing this class.
         -- either way, we load the required module and make it globally available.
         if found then
-            -- e..g pretty.dump causes pl.pretty to become available as 'pretty'
-            rawset(env,name,require('lib/pl.'..name))
+            -- e..g pretty.dump causes lib.pl.pretty to become available as 'pretty'
+            rawset(env,name,require('lib.pl.'..name))
             return env[name]
         else
             local res

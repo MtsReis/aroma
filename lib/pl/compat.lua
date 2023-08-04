@@ -38,13 +38,17 @@ compat.is_windows = compat.dir_separator == '\\'
 --
 -- NOTE: Windows systems can use signed 32bit integer exitcodes. Posix systems
 -- only use exitcodes 0-255, anything else is undefined.
+--
+-- NOTE2: In Lua 5.2 and 5.3 a Windows exitcode of -1 would not properly be
+-- returned, this function will return it properly for all versions.
 -- @param cmd a shell command
 -- @return true if successful
 -- @return actual return code
 function compat.execute(cmd)
     local res1,res2,res3 = os.execute(cmd)
     if res2 == "No error" and res3 == 0 and compat.is_windows then
-      -- os.execute bug in Lua 5.2+ not reporting -1 properly on Windows
+      -- os.execute bug in Lua 5.2/5.3 not reporting -1 properly on Windows
+      -- this was fixed in 5.4
       res3 = -1
     end
     if compat.lua51 and not compat.jit52 then
@@ -141,6 +145,7 @@ else
     end
 end
 
+
 --- Global exported functions (for Lua 5.1 & LuaJIT)
 -- @section lua52
 
@@ -160,7 +165,7 @@ end
 -- See `utils.unpack` for a version that is nil-safe.
 -- @param t table to unpack
 -- @param[opt] i index from which to start unpacking, defaults to 1
--- @param[opt] t index of the last element to unpack, defaults to #t
+-- @param[opt] j index of the last element to unpack, defaults to #t
 -- @return multiple return values from the table
 -- @function table.unpack
 -- @see utils.unpack
@@ -168,21 +173,80 @@ if not table.unpack then
     table.unpack = unpack           -- luacheck: ignore
 end
 
---- return the full path where a Lua module name would be matched.
--- @param mod module name, possibly dotted
--- @param path a path in the same form as package.path or package.cpath
+--- return the full path where a file name would be matched.
+-- This function was introduced in Lua 5.2, so this compatibility version
+-- will be injected in Lua 5.1 engines.
+-- @string name file name, possibly dotted
+-- @string path a path-template in the same form as package.path or package.cpath
+-- @string[opt] sep template separate character to be replaced by path separator. Default: "."
+-- @string[opt] rep the path separator to use, defaults to system separator. Default; "/" on Unixes, "\" on Windows.
 -- @see path.package_path
 -- @function package.searchpath
+-- @return on success: path of the file
+-- @return on failure: nil, error string listing paths tried
 if not package.searchpath then
-    local sep = package.config:sub(1,1)
-    function package.searchpath (mod,path)    -- luacheck: ignore
-        mod = mod:gsub('%.',sep)
+    function package.searchpath (name,path,sep,rep)    -- luacheck: ignore
+        if type(name) ~= "string" then
+            error(("bad argument #1 to 'searchpath' (string expected, got %s)"):format(type(path)), 2)
+        end
+        if type(path) ~= "string" then
+            error(("bad argument #2 to 'searchpath' (string expected, got %s)"):format(type(path)), 2)
+        end
+        if sep ~= nil and type(sep) ~= "string" then
+            error(("bad argument #3 to 'searchpath' (string expected, got %s)"):format(type(path)), 2)
+        end
+        if rep ~= nil and type(rep) ~= "string" then
+            error(("bad argument #4 to 'searchpath' (string expected, got %s)"):format(type(path)), 2)
+        end
+        sep = sep or "."
+        rep = rep or compat.dir_separator
+        do
+          local s, e = name:find(sep, nil, true)
+          while s do
+            name = name:sub(1, s-1) .. rep .. name:sub(e+1, -1)
+            s, e = name:find(sep, s + #rep + 1, true)
+          end
+        end
+        local tried = {}
         for m in path:gmatch('[^;]+') do
-            local nm = m:gsub('?',mod)
+            local nm = m:gsub('?', name)
+            tried[#tried+1] = nm
             local f = io.open(nm,'r')
             if f then f:close(); return nm end
         end
+        return nil, "\tno file '" .. table.concat(tried, "'\n\tno file '") .. "'"
     end
+end
+
+--- Global exported functions (for Lua < 5.4)
+-- @section lua54
+
+--- raise a warning message.
+-- This functions mimics the `warn` function added in Lua 5.4.
+-- @function warn
+-- @param ... any arguments
+if not rawget(_G, "warn") then
+    local enabled = false
+    local function warn(arg1, ...)
+        if type(arg1) == "string" and arg1:sub(1, 1) == "@" then
+            -- control message
+            if arg1 == "@on" then
+                enabled = true
+                return
+            end
+            if arg1 == "@off" then
+                enabled = false
+                return
+            end
+            return -- ignore unknown control messages
+        end
+        if enabled then
+          io.stderr:write("Lua warning: ", arg1, ...)
+          io.stderr:write("\n")
+        end
+    end
+    -- use rawset to bypass OpenResty's protection of global scope
+    rawset(_G, "warn", warn)
 end
 
 return compat

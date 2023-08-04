@@ -1,6 +1,6 @@
 --- A Map class.
 --
---    > Map = require 'lib/pl.Map'
+--    > Map = require 'pl.Map'
 --    > m = Map{one=1,two=2}
 --    > m:update {three=3,four=4,two=20}
 --    > = m == M{one=1,two=20,three=3,four=4}
@@ -9,16 +9,16 @@
 -- Dependencies: `pl.utils`, `pl.class`, `pl.tablex`, `pl.pretty`
 -- @classmod pl.Map
 
-local tablex = require 'lib/pl.tablex'
-local utils = require 'lib/pl.utils'
+local tablex = require 'lib.pl.tablex'
+local utils = require 'lib.pl.utils'
 local stdmt = utils.stdmt
 local deepcompare = tablex.deepcompare
 
-local pretty_write = require 'lib/pl.pretty' . write
+local pretty_write = require 'lib.pl.pretty' . write
 local Map = stdmt.Map
 local Set = stdmt.Set
 
-local class = require 'lib/pl.class'
+local class = require 'lib.pl.class'
 
 -- the Map class ---------------------
 class(nil,nil,Map)
@@ -34,7 +34,7 @@ end
 
 
 local function makelist(t)
-    return setmetatable(t, require('lib/pl.List'))
+    return setmetatable(t, require('lib.pl.List'))
 end
 
 --- list of keys.

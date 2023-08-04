@@ -5,8 +5,8 @@
 -- @module pl.app
 
 local io,package,require = _G.io, _G.package, _G.require
-local utils = require 'lib/pl.utils'
-local path = require 'lib/pl.path'
+local utils = require 'lib.pl.utils'
+local path = require 'lib.pl.path'
 
 local app = {}
 
@@ -20,19 +20,33 @@ function app.script_name()
     return utils.raise("No script name found")
 end
 
---- add the current script's path to the Lua module path.
+--- prefixes the current script's path to the Lua module path.
 -- Applies to both the source and the binary module paths. It makes it easy for
 -- the main file of a multi-file program to access its modules in the same directory.
 -- `base` allows these modules to be put in a specified subdirectory, to allow for
 -- cleaner deployment and resolve potential conflicts between a script name and its
 -- library directory.
--- @string base optional base directory.
+--
+-- Note: the path is prefixed, so it is searched first when requiring modules.
+-- @string base optional base directory (absolute, or relative path).
+-- @bool nofollow always use the invocation's directory, even if the invoked file is a symlink
 -- @treturn string the current script's path with a trailing slash
-function app.require_here (base)
-    local p = path.dirname(app.script_name())
+function app.require_here (base, nofollow)
+    local p = app.script_name()
     if not path.isabs(p) then
         p = path.join(path.currentdir(),p)
     end
+    if not nofollow then
+      local t = path.link_attrib(p)
+      if t and t.mode == 'link' then
+        t = t.target
+        if not path.isabs(t) then
+          t = path.join(path.dirname(p), t)
+        end
+        p = t
+      end
+    end
+    p = path.normpath(path.dirname(p))
     if p:sub(-1,-1) ~= path.sep then
         p = p..path.sep
     end
@@ -63,7 +77,7 @@ end
 -- @return cannot create directory error
 -- @usage
 -- -- when run from a script called 'testapp' (on Windows):
--- local app = require 'lib/pl.app'
+-- local app = require 'pl.app'
 -- print(app.appfile 'test.txt')
 -- -- C:\Documents and Settings\steve\.testapp\test.txt
 function app.appfile(file)
@@ -101,7 +115,7 @@ end
 -- -- execute:  lua -lluacov -e 'print(_VERSION)' myscript.lua
 --
 -- -- myscript.lua
--- print(require("pl.app").lua()))  --> lua -lluacov -e 'print(_VERSION)'
+-- print(require("pl.app").lua())  --> "lua -lluacov -e 'print(_VERSION)'", "lua"
 function app.lua()
     local args = _G.arg
     if not args then
@@ -253,7 +267,7 @@ function app.parse_args (args,flags_with_values, flags_valid)
                 i = i + 1
             else
                 -- a value can also be indicated with = or :
-                local var,val =  utils.splitv (v,'[=:]')
+                local var,val =  utils.splitv (v,'[=:]', false, 2)
                 var = var or v
                 val = val or true
                 if not is_long then

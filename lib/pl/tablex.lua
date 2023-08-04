@@ -4,8 +4,8 @@
 --
 -- Dependencies: `pl.utils`, `pl.types`
 -- @module pl.tablex
-local utils = require ('lib/pl.utils')
-local types = require ('lib/pl.types')
+local utils = require ('lib.pl.utils')
+local types = require ('lib.pl.types')
 local getmetatable,setmetatable,require = getmetatable,setmetatable,require
 local tsort,append,remove = table.sort,table.insert,table.remove
 local min = math.min
@@ -19,16 +19,16 @@ local tablex = {}
 -- However, when the source has no obvious type, then we attach appropriate metatables
 -- like List, Map, etc to the result.
 local function setmeta (res,tbl,pl_class)
-    local mt = getmetatable(tbl) or pl_class and require('lib/pl.' .. pl_class)
+    local mt = getmetatable(tbl) or pl_class and require('lib.pl.' .. pl_class)
     return mt and setmetatable(res, mt) or res
 end
 
 local function makelist(l)
-    return setmetatable(l, require('lib/pl.List'))
+    return setmetatable(l, require('lib.pl.List'))
 end
 
 local function makemap(m)
-    return setmetatable(m, require('lib/pl.Map'))
+    return setmetatable(m, require('lib.pl.Map'))
 end
 
 local function complain (idx,msg)
@@ -167,7 +167,14 @@ end
 -- @within Comparing
 -- @array t1 an array
 -- @array t2 an array
--- @func cmp A comparison function
+-- @func cmp A comparison function; `bool = cmp(t1_value, t2_value)`
+-- @return true or false
+-- @usage
+-- assert(tablex.compare({ 1, 2, 3 }, { 1, 2, 3 }, "=="))
+--
+-- assert(tablex.compare(
+--    {1,2,3, hello = "world"},  -- fields are not compared!
+--    {1,2,3}, function(v1, v2) return v1 == v2 end)
 function tablex.compare (t1,t2,cmp)
     assert_arg_indexable(1,t1)
     assert_arg_indexable(2,t2)
@@ -193,14 +200,16 @@ function tablex.compare_no_order (t1,t2,cmp)
     for i = 1,#t1 do
         local val = t1[i]
         local gotcha
-        for j = 1,#t2 do if not visited[j] then
-            local match
-            if cmp then match = cmp(val,t2[j]) else match = val == t2[j] end
-            if match then
-                gotcha = j
-                break
+        for j = 1,#t2 do
+            if not visited[j] then
+                local match
+                if cmp then match = cmp(val,t2[j]) else match = val == t2[j] end
+                if match then
+                    gotcha = j
+                    break
+                end
             end
-        end end
+        end
         if not gotcha then return false end
         visited[gotcha] = true
     end
@@ -234,7 +243,7 @@ end
 -- @within Finding
 -- @array t A list-like table
 -- @param val A value
--- @param idx index to start; -1 means last element,etc (default 1)
+-- @param idx index to start; -1 means last element,etc (default `#t`)
 -- @return index of value or nil if not found
 -- @usage rfind({10,10,10},10) == 3
 function tablex.rfind(t,val,idx)
@@ -249,12 +258,38 @@ end
 
 
 --- return the index (or key) of a value in a table using a comparison function.
+--
+-- *NOTE*: the 2nd return value of this function, the value returned
+-- by the comparison function, has a limitation that it cannot be `false`.
+-- Because if it is, then it indicates the comparison failed, and the
+-- function will continue the search. See examples.
 -- @within Finding
 -- @tab t A table
 -- @func cmp A comparison function
 -- @param arg an optional second argument to the function
 -- @return index of value, or nil if not found
--- @return value returned by comparison function
+-- @return value returned by comparison function (cannot be `false`!)
+-- @usage
+-- -- using an operator
+-- local lst = { "Rudolph", true, false, 15 }
+-- local idx, cmp_result = tablex.rfind(lst, "==", "Rudolph")
+-- assert(idx == 1)
+-- assert(cmp_result == true)
+--
+-- local idx, cmp_result = tablex.rfind(lst, "==", false)
+-- assert(idx == 3)
+-- assert(cmp_result == true)       -- looking up 'false' works!
+--
+-- -- using a function returning the value looked up
+-- local cmp = function(v1, v2) return v1 == v2 and v2 end
+-- local idx, cmp_result = tablex.rfind(lst, cmp, "Rudolph")
+-- assert(idx == 1)
+-- assert(cmp_result == "Rudolph")  -- the value is returned
+--
+-- -- NOTE: this fails, since 'false' cannot be returned!
+-- local idx, cmp_result = tablex.rfind(lst, cmp, false)
+-- assert(idx == nil)               -- looking up 'false' failed!
+-- assert(cmp_result == nil)
 function tablex.find_if(t,cmp,arg)
     assert_arg_iterable(1,t)
     cmp = function_arg(2,cmp)
@@ -323,6 +358,28 @@ end
 -- @string name the method name
 -- @array t a list-like table
 -- @param ... any extra arguments to the method
+-- @return a `List` with the results of the method (1st result only)
+-- @usage
+-- local Car = {}
+-- Car.__index = Car
+-- function Car.new(car)
+--   return setmetatable(car or {}, Car)
+-- end
+-- Car.speed = 0
+-- function Car:faster(increase)
+--   self.speed = self.speed + increase
+--   return self.speed
+-- end
+--
+-- local ferrari = Car.new{ name = "Ferrari" }
+-- local lamborghini = Car.new{ name = "Lamborghini", speed = 50 }
+-- local cars = { ferrari, lamborghini }
+--
+-- assert(ferrari.speed == 0)
+-- assert(lamborghini.speed == 50)
+-- tablex.map_named_method("faster", cars, 10)
+-- assert(ferrari.speed == 10)
+-- assert(lamborghini.speed == 60)
 function tablex.map_named_method (name,t,...)
     utils.assert_string(1,name)
     assert_arg_indexable(2,t)
@@ -339,7 +396,8 @@ end
 -- Any extra arguments are passed to the function.
 -- @func fun A function that takes at least one argument
 -- @tab t a table
--- @param ... extra arguments
+-- @param ... extra arguments passed to `fun`
+-- @see tablex.foreach
 function tablex.transform (fun,t,...)
     assert_arg_iterable(1,t)
     fun = function_arg(1,fun)
@@ -432,8 +490,9 @@ end
 -- Note that the Lua 5.0 function table.foreach passed the _key_ first.
 -- @within Iterating
 -- @tab t a table
--- @func fun a function with at least one argument
--- @param ... extra arguments
+-- @func fun a function on the elements; `function(value, key, ...)`
+-- @param ... extra arguments passed to `fun`
+-- @see tablex.transform
 function tablex.foreach(t,fun,...)
     assert_arg_iterable(1,t)
     fun = function_arg(2,fun)
@@ -523,7 +582,7 @@ local function keys_op(i,v) return i end
 
 --- return all the keys of a table in arbitrary order.
 -- @within Extraction
---  @tab t A table
+-- @tab t A list-like table where the values are the keys of the input table
 function tablex.keys(t)
     assert_arg_iterable(1,t)
     return makelist(tablex.pairmap(keys_op,t))
@@ -533,7 +592,7 @@ local function values_op(i,v) return v end
 
 --- return all the values of the table in arbitrary order
 -- @within Extraction
---  @tab t A table
+-- @tab t A list-like table where the values are the values of the input table
 function tablex.values(t)
     assert_arg_iterable(1,t)
     return makelist(tablex.pairmap(values_op,t))
@@ -558,7 +617,7 @@ local function set_op(i,v) return true,v end
 -- @return a set (a map-like table)
 function tablex.makeset (t)
     assert_arg_indexable(1,t)
-    return setmetatable(tablex.pairmap(set_op,t),require('lib/pl.Set'))
+    return setmetatable(tablex.pairmap(set_op,t),require('lib.pl.Set'))
 end
 
 --- combine two tables, either as union or intersection. Corresponds to
@@ -871,8 +930,8 @@ end
 -- @tab t the table
 -- @param value the value
 -- @array[opt] exclude any tables to avoid searching
--- @usage search(_G,math.sin,{package.path}) == 'math.sin'
 -- @return a fieldspec, e.g. 'a.b' or 'math.sin'
+-- @usage search(_G,math.sin,{package.path}) == 'math.sin'
 function tablex.search (t,value,exclude)
     assert_arg_iterable(1,t)
     local tables = {[t]=true}
@@ -920,8 +979,11 @@ end
 --- modifies a table to be read only.
 -- This only offers weak protection. Tables can still be modified with
 -- `table.insert` and `rawset`.
+--
+-- *NOTE*: for Lua 5.1 length, pairs and ipairs will not work, since the
+-- equivalent metamethods are only available in Lua 5.2 and newer.
 -- @tab t the table
--- @return the table read only.
+-- @return the table read only (a proxy).
 function tablex.readonly(t)
     local mt = {
         __index=t,

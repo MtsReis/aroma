@@ -2,7 +2,7 @@
 -- Placeholder expressions are useful for short anonymous functions, and were
 -- inspired by the Boost Lambda library.
 --
---    > utils.import 'lib/pl.func'
+--    > utils.import 'pl.func'
 --    > ls = List{10,20,30}
 --    > = ls:map(_1+1)
 --    {11,21,31}
@@ -20,9 +20,9 @@
 local type,setmetatable,getmetatable,rawset = type,setmetatable,getmetatable,rawset
 local concat,append = table.concat,table.insert
 local tostring = tostring
-local utils = require 'lib/pl.utils'
+local utils = require 'lib.pl.utils'
 local pairs,rawget,unpack,pack = pairs,rawget,utils.unpack,utils.pack
-local tablex = require 'lib/pl.tablex'
+local tablex = require 'lib.pl.tablex'
 local map = tablex.map
 local _DEBUG = rawget(_G,'_DEBUG')
 local assert_arg = utils.assert_arg
@@ -336,13 +336,20 @@ utils.add_function_factory(_PEMT,func.I)
 func.bind1 = utils.bind1
 func.curry = func.bind1
 
---- create a function which chains two functions.
+--- create a function which chains multiple functions.
 -- @func f a function of at least one argument
 -- @func g a function of at least one argument
+-- @param ... additional functions to compose
 -- @return a function
--- @usage printf = compose(io.write,string.format)
-function func.compose (f,g)
-    return function(...) return f(g(...)) end
+-- @usage printf = compose(io.write, string.format)
+-- @usage printf = compose(io.write, string.lower, string.format)
+function func.compose (...)
+    local args = pack(...)
+    return tablex.reduce(function(f, g)
+      return function(...)
+        return f(g(...))
+      end
+    end, args)
 end
 
 --- bind the arguments of a function to given values.

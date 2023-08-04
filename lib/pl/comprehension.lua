@@ -2,7 +2,7 @@
 --
 -- See the [wiki page](http://lua-users.org/wiki/ListComprehensions)
 --
---    local C= require 'lib/pl.comprehension' . new()
+--    local C= require 'pl.comprehension' . new()
 --
 --    C ('x for x=1,10') ()
 --    ==> {1,2,3,4,5,6,7,8,9,10}
@@ -30,11 +30,11 @@
 -- See @{07-functional.md.List_Comprehensions|the Guide}
 -- @module pl.comprehension
 
-local utils = require 'lib/pl.utils'
+local utils = require 'lib.pl.utils'
 
-local status,lb = pcall(require, "pl.luabalanced")
+local status,lb = pcall(require, "lib.pl.luabalanced")
 if not status then
-    lb = require 'lib/luabalanced'
+    lb = require 'luabalanced'
 end
 
 local math_max = math.max

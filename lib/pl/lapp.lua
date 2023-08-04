@@ -1,7 +1,7 @@
 --- Simple command-line parsing using human-readable specification.
 -- Supports GNU-style parameters.
 --
---      lapp = require 'lib/pl.lapp'
+--      lapp = require 'pl.lapp'
 --      local args = lapp [[
 --      Does some calculations
 --        -o,--offset (default 0.0)  Offset to add to scaled number
@@ -20,9 +20,9 @@
 -- Dependencies: `pl.sip`
 -- @module pl.lapp
 
-local status,sip = pcall(require,'lib/pl.sip')
+local status,sip = pcall(require,'lib.pl.sip')
 if not status then
-    sip = require 'lib/sip'
+    sip = require 'sip'
 end
 local match = sip.match_at_start
 local append,tinsert = table.insert,table.insert
@@ -237,7 +237,8 @@ function lapp.process_options_string(str,args)
         elseif check '$<{name} $'  then -- is it <parameter_name>?
             -- so <input file...> becomes input_file ...
             optparm,rest = res.name:match '([^%.]+)(.*)'
-            optparm = optparm:gsub('%A','_')
+            -- follow lua legal variable names
+            optparm = optparm:sub(1,1):gsub('%A','_') .. optparm:sub(2):gsub('%W', '_')
             varargs = rest == '...'
             append(parmlist,optparm)
         end
@@ -246,6 +247,7 @@ function lapp.process_options_string(str,args)
             line = res.rest
             res = {}
             local optional
+            local defval_str
             -- do we have ([optional] [<type>] [default <val>])?
             if match('$({def} $',line,res) or match('$({def}',line,res) then
                 local typespec = strip(res.def)
@@ -277,7 +279,7 @@ function lapp.process_options_string(str,args)
                         local enump = '|' .. enums .. '|'
                         vtype = 'string'
                         constraint = function(s)
-                            lapp.assert(enump:match('|'..s..'|'),
+                            lapp.assert(enump:find('|'..s..'|', 1, true),
                               "value '"..s.."' not in "..enums
                             )
                         end
@@ -288,6 +290,7 @@ function lapp.process_options_string(str,args)
                 -- optional 'default value' clause. Type is inferred as
                 -- 'string' or 'number' if there's no explicit type
                 if default or match('default $r{rest}',typespec,res) then
+                    defval_str = res.rest
                     defval,vtype = process_default(res.rest,vtype)
                 end
             else -- must be a plain flag, no extra parameter required
@@ -297,6 +300,7 @@ function lapp.process_options_string(str,args)
             local ps = {
                 type = vtype,
                 defval = defval,
+                defval_str = defval_str,
                 required = defval == nil and not optional,
                 comment = res.rest or optparm,
                 constraint = constraint,
@@ -426,6 +430,9 @@ function lapp.process_options_string(str,args)
         if not ps.used then
             if ps.required then lapp.error("missing required parameter: "..parm) end
             set_result(ps,parm,ps.defval)
+            if builtin_types[ps.type] == "file" then
+                set_result(ps, parm .. "_name", ps.defval_str)
+            end
         end
     end
     return results

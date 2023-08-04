@@ -5,13 +5,13 @@
 -- Dependencies: `pl.utils`, `pl.tablex`, `pl.class`, `pl.List`, `pl.Map`
 -- @classmod pl.OrderedMap
 
-local tablex = require 'lib/pl.tablex'
-local utils = require 'lib/pl.utils'
-local List = require 'lib/pl.List'
+local tablex = require 'lib.pl.tablex'
+local utils = require 'lib.pl.utils'
+local List = require 'lib.pl.List'
 local index_by,tsort,concat = tablex.index_by,table.sort,table.concat
 
-local class = require 'lib/pl.class'
-local Map = require 'lib/pl.Map'
+local class = require 'lib.pl.class'
+local Map = require 'lib.pl.Map'
 
 local OrderedMap = class(Map)
 OrderedMap._name = 'OrderedMap'

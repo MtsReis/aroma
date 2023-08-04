@@ -3,7 +3,7 @@
 -- Dependencies `pl.utils`
 -- @module pl.types
 
-local utils = require 'lib/pl.utils'
+local utils = require 'lib.pl.utils'
 local math_ceil = math.ceil
 local assert_arg = utils.assert_arg
 local types = {}
@@ -62,7 +62,7 @@ end
 -- An object is considered empty if it is:
 --
 -- - `nil`
--- - a table with out any items (key-value pairs or indexes)
+-- - a table without any items (key-value pairs or indexes)
 -- - a string with no content ("")
 -- - not a nil/table/string
 -- @param o The object to check if it is empty.

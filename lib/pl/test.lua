@@ -8,10 +8,10 @@
 -- Dependencies: `pl.utils`, `pl.tablex`, `pl.pretty`, `pl.path`, `debug`
 -- @module pl.test
 
-local tablex = require 'lib/pl.tablex'
-local utils = require 'lib/pl.utils'
-local pretty = require 'lib/pl.pretty'
-local path = require 'lib/pl.path'
+local tablex = require 'lib.pl.tablex'
+local utils = require 'lib.pl.utils'
+local pretty = require 'lib.pl.pretty'
+local path = require 'lib.pl.path'
 local type,unpack,pack = type,utils.unpack,utils.pack
 local clock = os.clock
 local debug = require 'debug'
