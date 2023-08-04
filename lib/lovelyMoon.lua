@@ -27,30 +27,6 @@ function lovelyMoon.draw()
    end
 end
 
-function lovelyMoon.commandpressed(key)
-   for index, state in pairs(_slotState.states) do
-      if state and state._enabled and state.commandpressed then
-         state:commandpressed(key)
-      end
-   end
-end
-
-function lovelyMoon.commandhold(key)
-   for index, state in pairs(_slotState.states) do
-      if state and state._enabled and state.commandhold then
-         state:commandhold(key)
-      end
-   end
-end
-
-function lovelyMoon.commandreleased(key)
-   for index, state in pairs(_slotState.states) do
-      if state and state._enabled and state.commandreleased then
-         state:commandreleased(key)
-      end
-   end
-end
-
 function lovelyMoon.keypressed(key, scancode)
    for index, state in pairs(_slotState.states) do
       if state and state._enabled and state.keypressed then
