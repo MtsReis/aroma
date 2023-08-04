@@ -22,7 +22,10 @@ Aroma.settings = {
 function Aroma:updateVideo()
 	love.window.setMode(self.settings.video.w, self.settings.video.h, {
 		fullscreen = self.settings.video.fullscreen,
-		vsync = self.settings.video.vsync
+		vsync = self.settings.video.vsync,
+    resizable = true,
+    minwidth = 640,
+    minheight = 420
 	})
 end
 
