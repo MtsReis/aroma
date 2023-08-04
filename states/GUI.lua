@@ -26,37 +26,33 @@ function GUI:update(dt)
 end
 
 function GUI:draw()
+  -- Main Menu Bar
+  if imgui.BeginMainMenuBar() then
+      if imgui.BeginMenu("File") then
+          if imgui.MenuItem_Bool("Quit") then love.event.quit() end
+          imgui.EndMenu()
+      end
+      imgui.EndMainMenuBar()
+  end
+
   local vp = imgui.GetMainViewport()
 
-  imgui.SetNextWindowPos(vp.WorkPos);
-  imgui.SetNextWindowSize(vp.WorkSize);
-  imgui.SetNextWindowViewport(vp.ID);
+  imgui.SetNextWindowPos(vp.WorkPos)
+  imgui.SetNextWindowSize(vp.WorkSize)
+  imgui.SetNextWindowViewport(vp.ID)
 
   imgui.PushStyleVar_Float(imgui.ImGuiStyleVar_WindowRounding, 0)
-  imgui.PushStyleVar_Float(imgui.ImGuiStyleVar_WindowBorderSize, 0);
+  imgui.PushStyleVar_Float(imgui.ImGuiStyleVar_WindowBorderSize, 0)
+  imgui.PushStyleVar_Vec2(imgui.ImGuiStyleVar_WindowPadding, imgui.ImVec2_Float(0, 0))
 
-  local wFlags = imgui.love.WindowFlags("MenuBar", "MenuBarNoDocking", "NoTitleBar", "NoCollapse", "NoResize", "NoMove", "NoBringToFrontOnFocus", "NoNavFocus")
+  local wFlags = imgui.love.WindowFlags("MenuBarNoDocking", "NoTitleBar", "NoCollapse", "NoResize", "NoMove", "NoBringToFrontOnFocus", "NoNavFocus")
   local dFlags = imgui.love.DockNodeFlags("None")
 
-  imgui.Begin("Main Dockspace Window", show.dockspace, wFlags);
-    imgui.PopStyleVar(2);
+  imgui.Begin("Main Dockspace Window", show.dockspace, wFlags)
+    imgui.PopStyleVar(3)
 
-    local dockspace_id = imgui.GetID_Str("MainDockspace");
+    local dockspace_id = imgui.GetID_Str("MainDockspace")
     imgui.DockSpace(dockspace_id, imgui.ImVec2_Float(0, 0), dFlags)
-
-    if imgui.BeginMenuBar() then
-      if imgui.BeginMenu("Options") then
-        imgui.MenuItem_BoolPtr("Fullscreen", nil, show.fullscreen)
-        imgui.MenuItem_BoolPtr("Padding", nil, show.padding)
-
-
-        imgui.Separator();
-
-        imgui.EndMenu()
-      end
-
-      imgui.EndMenuBar()
-    end
 
     if imgui.Begin("Test window") then
       if imgui.CollapsingHeader_TreeNodeFlags("Options") then
