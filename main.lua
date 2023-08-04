@@ -1,18 +1,15 @@
--- Include required modules
-require("modules/mInputVerify")
-require("modules/mPersistence")
-luna = require("modules/mLuna")
+Persistence = require 'system.persistence'
+aroma = require 'system.aroma'
 
-luna.debugMode = tablex.find(arg, "-debug") -- True if '-debug' is present as an arg
+aroma.debugMode = pl.tablex.find(arg, "-debug") -- Whether '-debug' is present as an arg
 
 function love.load()
   -- Load and enable the bootstrapper
-  addState(require("states/Bootstrap"), "Bootstrap", 2)
+  addState(require 'states.Bootstrap', "Bootstrap", 2)
   enableState("Bootstrap")
 end
 
 function love.update(dt)
-  InputVerify:update(dt)
   lovelyMoon.update(dt)
 end
 
@@ -21,12 +18,10 @@ function love.draw()
 end
 
 function love.keypressed(key, scancode)
-  InputVerify:keypressed(scancode)
   lovelyMoon.keypressed(key, scancode)
 end
 
 function love.keyreleased(key, scancode)
-  InputVerify:keyreleased(scancode)
   lovelyMoon.keyreleased(key, scancode)
 end
 
@@ -51,7 +46,6 @@ function love.wheelmoved(x, y)
 end
 
 function love.quit()
-  Persistence:saveINI() -- luna.settings -> settings.cfg
-  Persistence:saveINI(InputVerify.commandList, 'controls.cfg', false)
+  Persistence:saveINI() -- aroma.settings -> settings.cfg
   return false
 end
