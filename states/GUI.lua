@@ -1,14 +1,20 @@
 -- State controlling the bare minimum for the vis execution
-local GUI = class()
+local GUI = pl.class()
 
 function GUI:enable()
-  ffi = require "ffi"
-  io = imgui.GetIO()
+  ffi = require 'ffi'
+  local io = imgui.GetIO()
 
   show = {
+    dockspace = ffi.new("bool[1]", true),
     demo = ffi.new("bool[1]", false),
     style = ffi.new("bool[1]", false),
     metrics = ffi.new("bool[1]", false)
+  }
+
+  options = {
+    fullscreen = ffi.new("bool[1]", true),
+    padding = ffi.new("bool[1]", true)
   }
 
   io.ConfigFlags = imgui.love.ConfigFlags("DockingEnable")
@@ -20,24 +26,37 @@ function GUI:update(dt)
 end
 
 function GUI:draw()
-  if imgui.BeginMainMenuBar() then
-    if imgui.BeginMenu("File") then
-      if imgui.MenuItem_Bool("Quit") then love.event.quit() end
-      imgui.EndMenu()
-    end
-    if imgui.BeginMenu("View") then
-      if imgui.BeginMenu("Dear ImGui windows") then
-        imgui.MenuItem_BoolPtr("Show demo window", nil, show.demo)
-        imgui.MenuItem_BoolPtr("Show style editor", nil, show.style)
-        imgui.MenuItem_BoolPtr("Show metrics window", nil, show.metrics)
+  local vp = imgui.GetMainViewport()
+
+  imgui.SetNextWindowPos(vp.WorkPos);
+  imgui.SetNextWindowSize(vp.WorkSize);
+  imgui.SetNextWindowViewport(vp.ID);
+
+  imgui.PushStyleVar_Float(imgui.ImGuiStyleVar_WindowRounding, 0)
+  imgui.PushStyleVar_Float(imgui.ImGuiStyleVar_WindowBorderSize, 0);
+
+  local wFlags = imgui.love.WindowFlags("MenuBar", "MenuBarNoDocking", "NoTitleBar", "NoCollapse", "NoResize", "NoMove", "NoBringToFrontOnFocus", "NoNavFocus")
+  local dFlags = imgui.love.DockNodeFlags("None")
+
+  imgui.Begin("Main Dockspace Window", show.dockspace, wFlags);
+    imgui.PopStyleVar(2);
+
+    local dockspace_id = imgui.GetID_Str("MainDockspace");
+    imgui.DockSpace(dockspace_id, imgui.ImVec2_Float(0, 0), dFlags)
+
+    if imgui.BeginMenuBar() then
+      if imgui.BeginMenu("Options") then
+        imgui.MenuItem_BoolPtr("Fullscreen", nil, show.fullscreen)
+        imgui.MenuItem_BoolPtr("Padding", nil, show.padding)
+
+
+        imgui.Separator();
+
         imgui.EndMenu()
       end
 
-      imgui.EndMenu()
+      imgui.EndMenuBar()
     end
-
-    imgui.EndMainMenuBar()
-  end
 
     if imgui.Begin("Test window") then
       if imgui.CollapsingHeader_TreeNodeFlags("Options") then
@@ -52,22 +71,11 @@ function GUI:draw()
           love.graphics.setBackgroundColor(table.unpack(cb))
         end
       end
-      imgui.End()
     end
+    imgui.End()
 
-      if imgui.Begin("Container temp") then
-        imgui.TextDisabled("Disabled text just to fill a bit of the window")
-      end
-      imgui.End()
+  imgui.End()
 
-    if show.demo[0] then imgui.ShowDemoWindow(show.demo) end
-    if show.metrics[0] then imgui.ShowMetricsWindow(show.metrics) end
-    if show.style[0] then
-        if imgui.Begin("Style editor", show.style) then imgui.ShowStyleEditor() end
-        imgui.End()
-    end
-
-  -- render imgui
   imgui.Render()
   imgui.love.RenderDrawLists()
 end
@@ -126,6 +134,10 @@ function GUI:wheelmoved(x, y)
   if not imgui.love.GetWantCaptureMouse() then
     -- custom behaviour 
   end
+end
+
+function GUI:disable()
+  ffi = nil
 end
 
 return GUI
