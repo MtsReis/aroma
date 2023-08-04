@@ -5,19 +5,12 @@ function GUI:enable()
   ffi = require 'ffi'
   local io = imgui.GetIO()
 
-  show = {
-    dockspace = ffi.new("bool[1]", true),
-    demo = ffi.new("bool[1]", false),
-    style = ffi.new("bool[1]", false),
-    metrics = ffi.new("bool[1]", false)
-  }
-
   options = {
-    fullscreen = ffi.new("bool[1]", true),
-    padding = ffi.new("bool[1]", true)
+    fullscreen = ffi.new("bool[1]", aroma.settings.video.fullscreen == true)
   }
 
-  io.ConfigFlags = imgui.love.ConfigFlags("DockingEnable")
+  io.ConfigFlags = imgui.love.ConfigFlags("DockingEnable", "NavEnableKeyboard")
+  io.ConfigWindowsMoveFromTitleBarOnly = true
 end
 
 function GUI:update(dt)
@@ -31,6 +24,17 @@ function GUI:draw()
       if imgui.BeginMenu("File") then
           if imgui.MenuItem_Bool("Quit") then love.event.quit() end
           imgui.EndMenu()
+      end
+
+      if imgui.BeginMenu("View") then
+        if imgui.MenuItem_BoolPtr("Fullscreen", nil, options.fullscreen) then
+          if aroma.settings.video.fullscreen ~= options.fullscreen[0] then
+            aroma.settings.video.fullscreen = options.fullscreen[0]
+            aroma:updateVideo()
+          end
+        end
+
+        imgui.EndMenu()
       end
       imgui.EndMainMenuBar()
   end
@@ -48,7 +52,7 @@ function GUI:draw()
   local wFlags = imgui.love.WindowFlags("MenuBarNoDocking", "NoTitleBar", "NoCollapse", "NoResize", "NoMove", "NoBringToFrontOnFocus", "NoNavFocus")
   local dFlags = imgui.love.DockNodeFlags("None")
 
-  imgui.Begin("Main Dockspace Window", show.dockspace, wFlags)
+  imgui.Begin("Main Dockspace Window", nil, wFlags)
     imgui.PopStyleVar(3)
 
     local dockspace_id = imgui.GetID_Str("MainDockspace")
