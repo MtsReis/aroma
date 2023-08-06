@@ -68,11 +68,11 @@ function LIP.save(fileName, data, tweakableOnly)
 	if (type(tweakableOnly) ~= 'boolean') then return false, 'Parameter "tweakableOnly" must be boolean.'; end;
 	local contents = '';
 	for section, param in pairs(data) do
-		if (not tweakableOnly or param['_tweakable'] ~= nil) then
+		if (not tweakableOnly or param['__tweakable'] ~= nil) then
 			contents = contents .. ('[%s]\n'):format(section);
 
 			if (tweakableOnly) then
-				for _, key in pairs(param['_tweakable']) do
+				for _, key in pairs(param['__tweakable']) do
 					if param[key] ~= nil then
 						contents = contents .. ('%s=%s\n'):format(key, tostring(param[key]));
 					end

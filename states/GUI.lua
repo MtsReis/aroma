@@ -21,13 +21,25 @@ end
 function GUI:draw()
   -- Main Menu Bar
   if imgui.BeginMainMenuBar() then
-      if imgui.BeginMenu("File") then
-          if imgui.MenuItem_Bool("Quit") then love.event.quit() end
+      if imgui.BeginMenu(_L("FILE"):shorten(20)) then
+          if imgui.MenuItem_Bool(_L("QUIT")) then love.event.quit() end
           imgui.EndMenu()
       end
 
-      if imgui.BeginMenu("View") then
-        if imgui.MenuItem_BoolPtr("Fullscreen", nil, options.fullscreen) then
+      if imgui.BeginMenu(_L("VIEW"):shorten(20)) then
+        if imgui.BeginMenu(_L("LANGUAGE")) then
+          if imgui.MenuItem_Bool("English", nil, i18n.getLocale() == 'en') then
+            aroma:setLocale('en')
+          end
+
+          if imgui.MenuItem_Bool("Português brasileiro", nil, i18n.getLocale() == 'pt-BR') then
+            aroma:setLocale('pt-BR')
+          end
+
+          imgui.EndMenu()
+        end
+
+        if imgui.MenuItem_BoolPtr(_L("FULLSCREEN"), nil, options.fullscreen) then
           if aroma.settings.video.fullscreen ~= options.fullscreen[0] then
             aroma.settings.video.fullscreen = options.fullscreen[0]
             aroma:updateVideo()
@@ -58,14 +70,14 @@ function GUI:draw()
     local dockspace_id = imgui.GetID_Str("MainDockspace")
     imgui.DockSpace(dockspace_id, imgui.ImVec2_Float(0, 0), dFlags)
 
-    if imgui.Begin("Test window") then
-      if imgui.CollapsingHeader_TreeNodeFlags("Options") then
+    if imgui.Begin(_L("TEST_WINDOW")) then
+      if imgui.CollapsingHeader_TreeNodeFlags(_L("OPTIONS")) then
         local fb = table.pack(love.graphics.getBackgroundColor())
         fb.n = nil
         fb = fb[1] == 1 and fb[2] == 1 and fb[3] == 1 and 1 or fb
 
         local p = ffi.new("bool[1]", fb == 1)
-        if imgui.Checkbox("Flashbang", p) then
+        if imgui.Checkbox(_L("FLASHBANG"), p) then
           local cb = p[0] and {1, 1, 1, 1} or (fb ~= 1 and fb or {0, 0, 0, 1})
 
           love.graphics.setBackgroundColor(table.unpack(cb))

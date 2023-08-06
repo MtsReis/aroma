@@ -24,10 +24,10 @@ function Persistence:loadSettings(dir)
 		for section, sectionValue in pairs(userSettings) do
 			if type(sectionValue) == "table" and aroma.settings[section] ~= nil then
 				-- Load fields in the section if it has tweakable values
-				if aroma.settings[section]['_tweakable'] ~= nil then
+				if aroma.settings[section]['__tweakable'] ~= nil then
 					for settingKey, settingValue in pairs(sectionValue) do
 						-- Only load the key if it's tweakable
-						if pl.tablex.find(aroma.settings[section]['_tweakable'], settingKey) ~= nil then
+						if pl.tablex.find(aroma.settings[section]['__tweakable'], settingKey) ~= nil then
 							aroma.settings[section][settingKey] = settingValue
 						end
 					end
