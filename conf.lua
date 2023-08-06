@@ -2,6 +2,7 @@
 pl = require'lib.pl.import_into'() -- On-demand lib loading into pl
 lip = require 'lib.LIP'
 log = require 'lib.log'
+i18n = require 'lib.i18n'
 require 'lib.stateManager'
 require 'lib.lovelyMoon'
 

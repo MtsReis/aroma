@@ -37,6 +37,14 @@ function Bootstrap:load()
   aroma:updateVideo()
 
   -----------------------------------------------
+  --                    i18n
+  -----------------------------------------------
+  i18n.loadFile('../i18n/en.lua')
+  i18n.loadFile('../i18n/pt-BR.lua')
+
+  i18n.setLocale('en')
+
+  -----------------------------------------------
   --                   states
   -----------------------------------------------
   if aroma.debugMode then
@@ -45,6 +53,19 @@ function Bootstrap:load()
 
   addState(require 'states.Root', "Root", 1)
   addState(require 'states.GUI', "GUI")
+
+  -----------------------------------------------
+  --                  wrappers
+  -----------------------------------------------
+  --[[
+    Return a name that only includes 'stringKey' in Dear_imgui's UID generator
+    and use its localized string as the actual label.
+
+    e.g.: 'Welcome###WELCOME_msg' (only 'WELCOME_msg' is pushed into the ID stack)
+  ]]
+  _L = function(stringKey)
+    return i18n(stringKey) .. "###" .. stringKey
+  end
 end
 
 function Bootstrap:enable()
