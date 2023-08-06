@@ -164,6 +164,10 @@ function i18n.getLocale()
   return locale
 end
 
+function i18n.isLocaleLoaded(locale)
+  return store[locale] and true or false
+end
+
 function i18n.reset()
   store = {}
   plural.reset()
