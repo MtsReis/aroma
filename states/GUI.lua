@@ -21,12 +21,24 @@ end
 function GUI:draw()
   -- Main Menu Bar
   if imgui.BeginMainMenuBar() then
-      if imgui.BeginMenu(_L("FILE")) then
+      if imgui.BeginMenu(_L("FILE"):shorten(20)) then
           if imgui.MenuItem_Bool(_L("QUIT")) then love.event.quit() end
           imgui.EndMenu()
       end
 
-      if imgui.BeginMenu(_L("VIEW") ) then
+      if imgui.BeginMenu(_L("VIEW"):shorten(20)) then
+        if imgui.BeginMenu(_L("LANGUAGE")) then
+          if imgui.MenuItem_Bool("English", nil, i18n.getLocale() == 'en') then
+            aroma:setLocale('en')
+          end
+
+          if imgui.MenuItem_Bool("Português brasileiro", nil, i18n.getLocale() == 'pt-BR') then
+            aroma:setLocale('pt-BR')
+          end
+
+          imgui.EndMenu()
+        end
+
         if imgui.MenuItem_BoolPtr(_L("FULLSCREEN"), nil, options.fullscreen) then
           if aroma.settings.video.fullscreen ~= options.fullscreen[0] then
             aroma.settings.video.fullscreen = options.fullscreen[0]
