@@ -39,10 +39,12 @@ function Bootstrap:load()
   -----------------------------------------------
   --                    i18n
   -----------------------------------------------
-  i18n.loadFile('../i18n/en.lua')
-  i18n.loadFile('../i18n/pt-BR.lua')
+  i18n.load(require('i18n.en')) -- Default locale
+  -- Load user defined locale
+  if aroma.settings.preferences.locale ~= nil then
+    aroma:setLocale(aroma.settings.preferences.locale)
+  end
 
-  i18n.setLocale('en')
 
   -----------------------------------------------
   --                   states
@@ -61,11 +63,25 @@ function Bootstrap:load()
     Return a name that only includes 'stringKey' in Dear_imgui's UID generator
     and use its localized string as the actual label.
 
-    e.g.: 'Welcome###WELCOME_msg' (only 'WELCOME_msg' is pushed into the ID stack)
+    e.g.: 'Aplicar###APPLY_btn' (only 'APPLY_btn' is pushed into the ID stack)
   ]]
-  _L = function(stringKey)
-    return i18n(stringKey) .. "###" .. stringKey
+  _L = function(stringKey, ...)
+    return i18n(stringKey, ...) .. "###" .. stringKey
   end
+
+  -----------------------------------------------
+  --                    utils
+  -----------------------------------------------
+  --[[ Expand the string std table to perform a string interpolation
+  by using the mod operator (%).
+  e.g.: "%(val)7.2f% float assigned to %(var)s" % {val = 33.1337, var = "progress"}
+  ]]
+  local function interp(s, tab)
+    return (s:gsub('%%%((%a%w*)%)([-0-9%.]*[cdeEfgGiouxXsq])',
+              function(k, fmt) return tab[k] and ("%"..fmt):format(tab[k]) or
+                  '%('..k..')'..fmt end))
+  end
+  getmetatable("").__mod = interp
 end
 
 function Bootstrap:enable()
