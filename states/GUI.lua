@@ -1,5 +1,7 @@
 -- State controlling the bare minimum for the vis execution
 local GUI = pl.class()
+local welcomeMode = require 'states.gui.welcome'
+local projectMode = require 'states.gui.project'
 
 function GUI:enable()
   ffi = require 'ffi'
@@ -19,74 +21,41 @@ function GUI:update(dt)
 end
 
 function GUI:draw()
-  -- Main Menu Bar
+  --[[ Main Menu Bar ]]
   if imgui.BeginMainMenuBar() then
-      if imgui.BeginMenu(_L("FILE"):shorten(20)) then
-          if imgui.MenuItem_Bool(_L("QUIT")) then love.event.quit() end
-          imgui.EndMenu()
-      end
+    if imgui.BeginMenu(_L("FILE"):shorten(20)) then
+        if imgui.MenuItem_Bool(_L("QUIT")) then love.event.quit() end
+        imgui.EndMenu()
+    end
 
-      if imgui.BeginMenu(_L("VIEW"):shorten(20)) then
-        if imgui.BeginMenu(_L("LANGUAGE")) then
-          if imgui.MenuItem_Bool("English", nil, i18n.getLocale() == 'en') then
-            aroma:setLocale('en')
-          end
-
-          if imgui.MenuItem_Bool("Português brasileiro", nil, i18n.getLocale() == 'pt-BR') then
-            aroma:setLocale('pt-BR')
-          end
-
-          imgui.EndMenu()
+    if imgui.BeginMenu(_L("VIEW"):shorten(20)) then
+      if imgui.BeginMenu(_L("LANGUAGE")) then
+        if imgui.MenuItem_Bool("English", nil, i18n.getLocale() == 'en') then
+          aroma:setLocale('en')
         end
 
-        if imgui.MenuItem_BoolPtr(_L("FULLSCREEN"), nil, options.fullscreen) then
-          if aroma.settings.video.fullscreen ~= options.fullscreen[0] then
-            aroma.settings.video.fullscreen = options.fullscreen[0]
-            aroma:updateVideo()
-          end
+        if imgui.MenuItem_Bool("Português brasileiro", nil, i18n.getLocale() == 'pt-BR') then
+          aroma:setLocale('pt-BR')
         end
 
         imgui.EndMenu()
       end
-      imgui.EndMainMenuBar()
-  end
 
-  local vp = imgui.GetMainViewport()
-
-  imgui.SetNextWindowPos(vp.WorkPos)
-  imgui.SetNextWindowSize(vp.WorkSize)
-  imgui.SetNextWindowViewport(vp.ID)
-
-  imgui.PushStyleVar_Float(imgui.ImGuiStyleVar_WindowRounding, 0)
-  imgui.PushStyleVar_Float(imgui.ImGuiStyleVar_WindowBorderSize, 0)
-  imgui.PushStyleVar_Vec2(imgui.ImGuiStyleVar_WindowPadding, imgui.ImVec2_Float(0, 0))
-
-  local wFlags = imgui.love.WindowFlags("MenuBarNoDocking", "NoTitleBar", "NoCollapse", "NoResize", "NoMove", "NoBringToFrontOnFocus", "NoNavFocus")
-  local dFlags = imgui.love.DockNodeFlags("None")
-
-  imgui.Begin("Main Dockspace Window", nil, wFlags)
-    imgui.PopStyleVar(3)
-
-    local dockspace_id = imgui.GetID_Str("MainDockspace")
-    imgui.DockSpace(dockspace_id, imgui.ImVec2_Float(0, 0), dFlags)
-
-    if imgui.Begin(_L("TEST_WINDOW")) then
-      if imgui.CollapsingHeader_TreeNodeFlags(_L("OPTIONS")) then
-        local fb = table.pack(love.graphics.getBackgroundColor())
-        fb.n = nil
-        fb = fb[1] == 1 and fb[2] == 1 and fb[3] == 1 and 1 or fb
-
-        local p = ffi.new("bool[1]", fb == 1)
-        if imgui.Checkbox(_L("FLASHBANG"), p) then
-          local cb = p[0] and {1, 1, 1, 1} or (fb ~= 1 and fb or {0, 0, 0, 1})
-
-          love.graphics.setBackgroundColor(table.unpack(cb))
+      if imgui.MenuItem_BoolPtr(_L("FULLSCREEN"), nil, options.fullscreen) then
+        if aroma.settings.video.fullscreen ~= options.fullscreen[0] then
+          aroma.settings.video.fullscreen = options.fullscreen[0]
+          aroma:updateVideo()
         end
       end
-    end
-    imgui.End()
 
-  imgui.End()
+      imgui.EndMenu()
+    end
+    imgui.EndMainMenuBar()
+  end
+
+  love.graphics.rectangle("fill", 100, 100, 50, 50)
+
+  projectMode:draw()
 
   imgui.Render()
   imgui.love.RenderDrawLists()
