@@ -39,7 +39,7 @@ function Bootstrap:load()
   -----------------------------------------------
   --                    i18n
   -----------------------------------------------
-  i18n.load(require('i18n.en')) -- Default locale
+  i18n.load(require('system.i18n.en')) -- Default locale
   -- Load user defined locale
   if aroma.settings.preferences.locale ~= nil then
     aroma:setLocale(aroma.settings.preferences.locale)

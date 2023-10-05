@@ -42,7 +42,7 @@ function Aroma:setLocale(newLocale, ...)
 
     local data
     if pcall(function ()
-      data = assert(require('i18n.'..newLocale))
+      data = assert(require('system.i18n.'..newLocale))
     end) then
       i18n.load(data)
     else
