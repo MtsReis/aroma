@@ -1,9 +1,9 @@
 local ProjectModeView = class('ProjectModeView')
 
-function ProjectModeView:update(dt, data)
+function ProjectModeView.update()
 end
 
-function ProjectModeView:draw()
+function ProjectModeView.draw()
   local vp = imgui.GetMainViewport()
 
   imgui.SetNextWindowPos(vp.WorkPos)
@@ -14,7 +14,10 @@ function ProjectModeView:draw()
   imgui.PushStyleVar_Float(imgui.ImGuiStyleVar_WindowBorderSize, 0)
   imgui.PushStyleVar_Vec2(imgui.ImGuiStyleVar_WindowPadding, imgui.ImVec2_Float(0, 0))
 
-  local wFlags = imgui.love.WindowFlags("MenuBarNoDocking", "NoTitleBar", "NoCollapse", "NoResize", "NoMove", "NoBringToFrontOnFocus", "NoNavFocus")
+  local wFlags = imgui.love.WindowFlags(
+    "MenuBarNoDocking", "NoTitleBar", "NoCollapse", "NoResize",
+    "NoMove", "NoBringToFrontOnFocus", "NoNavFocus"
+  )
   local dFlags = imgui.love.DockNodeFlags("None")
 
   imgui.Begin("MainDockspaceWindow", nil, wFlags)

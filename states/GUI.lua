@@ -2,8 +2,11 @@
 local GUI = class('GUI')
 local welcomeMode = require 'states.gui.welcome'
 local projectMode = require 'states.gui.project'
+local options = {}
 
-function GUI:enable()
+ffi = nil
+
+function GUI.enable()
   ffi = require 'ffi'
   local io = imgui.GetIO()
 
@@ -20,7 +23,7 @@ function GUI:update(dt)
   imgui.NewFrame()
 end
 
-function GUI:draw()
+function GUI.draw()
   --[[ Main Menu Bar ]]
   if imgui.BeginMainMenuBar() then
     if imgui.BeginMenu(_L("FILE"):shorten(20)) then
@@ -61,19 +64,19 @@ function GUI:draw()
   imgui.love.RenderDrawLists()
 end
 
-function GUI:keypressed(key, scancode)
+function GUI:keypressed(key)
   imgui.love.KeyPressed(key)
 
   if not imgui.love.GetWantCaptureKeyboard() then
-    -- custom behaviour 
+    -- custom behaviour
   end
 end
 
-function GUI:keyreleased(key, scancode)
+function GUI:keyreleased(key)
   imgui.love.KeyReleased(key)
 
   if not imgui.love.GetWantCaptureKeyboard() then
-    -- custom behaviour 
+    -- custom behaviour
   end
 end
 
@@ -81,11 +84,11 @@ function GUI:textinput(text)
   imgui.love.TextInput(text)
 
   if imgui.love.GetWantCaptureKeyboard() then
-    -- custom behaviour 
+    -- custom behaviour
   end
 end
 
-function GUI:mousemoved(x, y, dx, dy, istouch)
+function GUI:mousemoved(x, y)
   imgui.love.MouseMoved(x, y)
 
   if not imgui.love.GetWantCaptureMouse() then
@@ -97,7 +100,7 @@ function GUI:mousepressed(x, y, button)
   imgui.love.MousePressed(button)
 
   if not imgui.love.GetWantCaptureMouse() then
-    -- custom behaviour 
+    -- custom behaviour
   end
 end
 
@@ -105,7 +108,7 @@ function GUI:mousereleased(x, y, button)
   imgui.love.MouseReleased(button)
 
   if not imgui.love.GetWantCaptureMouse() then
-    -- custom behaviour 
+    -- custom behaviour
   end
 end
 
@@ -113,11 +116,11 @@ function GUI:wheelmoved(x, y)
   imgui.love.WheelMoved(x, y)
 
   if not imgui.love.GetWantCaptureMouse() then
-    -- custom behaviour 
+    -- custom behaviour
   end
 end
 
-function GUI:disable()
+function GUI.disable()
   ffi = nil
 end
 

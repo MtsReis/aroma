@@ -1,19 +1,19 @@
 -- Module responsible for saving and loading files
 local Persistence = class('Persistence')
 
-function Persistence:saveINI(data, dir, tweakableOnly)
+function Persistence.saveINI(data, dir, tweakableOnly)
 	data = data or aroma.settings
 	dir = dir or 'settings.cfg'
 	tweakableOnly = (tweakableOnly ~= false) or false -- True as default value
 
-		success, message = lip.save(dir, data, tweakableOnly)
+		local success, message = lip.save(dir, data, tweakableOnly)
 
 		if not success then
 			log.warn(message)
 		end
 end
 
-function Persistence:loadSettings(dir)
+function Persistence.loadSettings(dir)
 	dir = dir or 'settings.cfg'
 
 	-- Check whether the specified file exists

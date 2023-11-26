@@ -31,7 +31,7 @@ function Bootstrap.load()
   --                  settings
   -----------------------------------------------
   -- Load the user .cfg files
-  Persistence:loadSettings()
+  Persistence.loadSettings()
 
   -- Update video with the user settings
   aroma:updateVideo()

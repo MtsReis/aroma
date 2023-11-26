@@ -46,6 +46,6 @@ function love.wheelmoved(x, y)
 end
 
 function love.quit()
-  Persistence:saveINI() -- aroma.settings -> settings.cfg
+  Persistence.saveINI() -- aroma.settings -> settings.cfg
   return false
 end

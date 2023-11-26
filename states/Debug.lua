@@ -1,27 +1,27 @@
 local DebugMode = class('DebugMode')
+lovebird = require "lib.lovebird"
 
-function DebugMode:load()
-  lovebird = require "lib.lovebird"
+function DebugMode.load()
 end
 
-function DebugMode:enable()
+function DebugMode.enable()
   -- Settings for Debug Mode
   log.level = "trace"
 end
 
-function DebugMode:update(dt)
+function DebugMode.update()
   if (not aroma.debugMode) then
-    disableState("Debug")
+    state.disable("Debug")
   end
 
   lovebird.update()
 end
 
-function DebugMode:disable()
+function DebugMode.disable()
   log.level = "warn"
 end
 
-function DebugMode:unload()
+function DebugMode.unload()
   lovebird = nil
 end
 
