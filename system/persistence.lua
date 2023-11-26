@@ -1,5 +1,5 @@
 -- Module responsible for saving and loading files
-local Persistence = pl.class()
+local Persistence = class('Persistence')
 
 function Persistence:saveINI(data, dir, tweakableOnly)
 	data = data or aroma.settings

@@ -1,4 +1,4 @@
-local ProjectModeView = pl.class()
+local ProjectModeView = class('ProjectModeView')
 
 function ProjectModeView:update(dt, data)
 end

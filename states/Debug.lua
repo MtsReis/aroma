@@ -1,4 +1,4 @@
-local DebugMode = pl.class()
+local DebugMode = class('DebugMode')
 
 function DebugMode:load()
   lovebird = require "lib.lovebird"

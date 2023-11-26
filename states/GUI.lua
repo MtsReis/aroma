@@ -1,5 +1,5 @@
 -- State controlling the bare minimum for the vis execution
-local GUI = pl.class()
+local GUI = class('GUI')
 local welcomeMode = require 'states.gui.welcome'
 local projectMode = require 'states.gui.project'
 

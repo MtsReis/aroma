@@ -1,5 +1,5 @@
 -- Apply Singleton
-local WelcomeModeView = pl.class()
+local WelcomeModeView = class('WelcomeModeView')
 
 function WelcomeModeView:update(dt, data)
 end

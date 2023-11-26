@@ -1,4 +1,4 @@
-local Bootstrap = pl.class()
+local Bootstrap = class('Bootstrap')
 
 function Bootstrap:load()
   -----------------------------------------------

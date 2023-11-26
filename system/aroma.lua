@@ -1,4 +1,4 @@
-local Aroma = pl.class()
+local Aroma = class('Aroma')
 
 -- Default settings
 local videoW, videoH = love.window.getDesktopDimensions()

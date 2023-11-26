@@ -1,5 +1,6 @@
 -- Core libs
-pl = require'lib.pl.import_into'() -- On-demand lib loading into pl
+pl = require 'lib.pl.import_into'() -- On-demand lib loading into pl
+class = require 'lib.middleclass'.class
 lip = require 'lib.LIP'
 log = require 'lib.log'
 i18n = require 'lib.i18n'

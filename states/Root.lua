@@ -1,5 +1,5 @@
 -- State controlling the bare minimum for the vis execution
-local Root = pl.class()
+local Root = class('Root')
 
 function Root:disable()
   if imgui.love.Shutdown() then
