@@ -1,4 +1,4 @@
-lovelyMoon = {}
+local lovelyMoon = {}
 
 function lovelyMoon.update(dt)
    for index, state in pairs(_slotState.states) do
@@ -82,3 +82,5 @@ function lovelyMoon.wheelmoved(x, y)
       end
    end
 end
+
+return lovelyMoon

@@ -5,7 +5,6 @@ lip = require 'lib.LIP'
 log = require 'lib.log'
 i18n = require 'lib.i18n'
 state = require 'lib.stateManager'
-require 'lib.lovelyMoon'
 
 -- Direct access to some convenient functions
 pd = require 'lib.pl.pretty'.dump

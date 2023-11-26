@@ -1,7 +1,8 @@
 Persistence = require 'system.persistence'
 aroma = require 'system.aroma'
-
 aroma.debugMode = pl.tablex.find(arg, "-debug") -- Whether '-debug' is present as an arg
+
+local lovelyMoon = require 'lib.lovelyMoon'
 
 function love.load()
   -- Load and enable the bootstrapper

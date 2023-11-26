@@ -1,5 +1,5 @@
 stds.aroma = {
-   globals = {"aroma", "lovelyMoon", "imgui", "_L"},
+   globals = {"aroma", "imgui", "_L"},
    read_globals = {"pl", "pw", "pd", "class", "state"}
 }
 
