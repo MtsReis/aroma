@@ -1,6 +1,7 @@
 _slotState = { states = {} }
+local State = {}
 
-function addState(class, id, key)
+function State.add(class, id, key)
   class._enabled = false
   class._id = id
 
@@ -16,7 +17,7 @@ function addState(class, id, key)
   return state
 end
 
-function isStateEnabled(id)
+function State.isEnabled(id)
    for index, state in pairs (_slotState.states) do
       if state._id == id then
         return state._enabled
@@ -24,7 +25,7 @@ function isStateEnabled(id)
    end
 end
 
-function getState(id)
+function State.get(id)
    for index, state in pairs (_slotState.states) do
       if state._id == id then
         return state
@@ -32,7 +33,7 @@ function getState(id)
    end
 end
 
-function enableState(id)
+function State.enable(id)
    for index, state in pairs (_slotState.states) do
       if state._id == id then
         log.trace(string.format("Starting %s state", id))
@@ -42,7 +43,7 @@ function enableState(id)
    end
 end
 
-function disableState(id)
+function State.disable(id)
   for index, state in pairs (_slotState.states) do
     if state._id == id then
       local disabled = true
@@ -60,19 +61,19 @@ function disableState(id)
   end
 end
 
-function toggleState(id)
+function State.toggle(id)
    for index, state in pairs (_slotState.states) do
       if state._id == id then
         if state._enabled then
-          disableState(id)
+          State.disable(id)
         else
-          enableState(id)
+          State.enable(id)
         end
       end
    end
 end
 
-function destroyState(id)
+function State.destroy(id)
    for index, state in pairs (_slotState.states) do
       if state._id == id then
         log.trace(string.format("Destroying %s state", id))
@@ -81,3 +82,5 @@ function destroyState(id)
       end
    end
 end
+
+return State

@@ -1,6 +1,6 @@
 stds.aroma = {
-   globals = {"lovelyMoon", "imgui"},
-   read_globals = {"pl", "pw", "pd"}
+   globals = {"lovelyMoon", "imgui", "_L"},
+   read_globals = {"pl", "pw", "pd", "class", "state"}
 }
 
 std = "luajit+love+aroma"

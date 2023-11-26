@@ -5,8 +5,8 @@ aroma.debugMode = pl.tablex.find(arg, "-debug") -- Whether '-debug' is present a
 
 function love.load()
   -- Load and enable the bootstrapper
-  addState(require 'states.Bootstrap', "Bootstrap", 2)
-  enableState("Bootstrap")
+  state.add(require 'states.Bootstrap', "Bootstrap", 2)
+  state.enable("Bootstrap")
 end
 
 function love.update(dt)

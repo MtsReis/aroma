@@ -4,7 +4,7 @@ class = require 'lib.middleclass'.class
 lip = require 'lib.LIP'
 log = require 'lib.log'
 i18n = require 'lib.i18n'
-require 'lib.stateManager'
+state = require 'lib.stateManager'
 require 'lib.lovelyMoon'
 
 -- Direct access to some convenient functions

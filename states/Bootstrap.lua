@@ -1,6 +1,6 @@
 local Bootstrap = class('Bootstrap')
 
-function Bootstrap:load()
+function Bootstrap.load()
   -----------------------------------------------
   --                    imgui
   -----------------------------------------------
@@ -8,7 +8,7 @@ function Bootstrap:load()
   local lib_folder = string.format("lib/cimgui/shared/%s-%s", jit.os, jit.arch)
   assert(
     love.filesystem.getRealDirectory(lib_folder),
-    "The precompiled cimgui shared library is not available for your os/architecture. You can try compiling it yourself."
+    "The precompiled cimgui shared library is not available for your os/architecture."
   )
   local dest_dir = string.format("libs/%s-%s", jit.os, jit.arch)
 
@@ -50,11 +50,11 @@ function Bootstrap:load()
   --                   states
   -----------------------------------------------
   if aroma.debugMode then
-    addState(require 'states.Debug', "Debug", 10)
+    state.add(require 'states.Debug', "Debug", 10)
   end
 
-  addState(require 'states.Root', "Root", 1)
-  addState(require 'states.GUI', "GUI")
+  state.add(require 'states.Root', "Root", 1)
+  state.add(require 'states.GUI', "GUI")
 
   -----------------------------------------------
   --                  wrappers
@@ -84,21 +84,21 @@ function Bootstrap:load()
   getmetatable("").__mod = interp
 end
 
-function Bootstrap:enable()
+function Bootstrap.enable()
   imgui.love.Init()
 
   if aroma.debugMode then
-    enableState("Debug")
+    state.enable("Debug")
   end
 
-  enableState("Root")
-  enableState("GUI")
+  state.enable("Root")
+  state.enable("GUI")
 end
 
-function Bootstrap:update()
+function Bootstrap.update()
   -- End of boot
-  disableState("Bootstrap")
-  destroyState("Bootstrap")
+  state.disable("Bootstrap")
+  state.destroy("Bootstrap")
 end
 
 return Bootstrap
