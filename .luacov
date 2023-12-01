@@ -9,6 +9,8 @@ exclude = {
   "lib%/cimgui%/.+$",
   "lib%/i18n%/.+$",
   "lib%/pl%/.+$",
+  "lib%/lovebird",
+  "lib%/middleclass"
 }
 
 runreport = true
