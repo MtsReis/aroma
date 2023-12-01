@@ -26,7 +26,7 @@ function State.add(class, id, index)
 end
 
 function State.isEnabled(id)
-  for index, state in pairs (_slotState.states) do
+  for _, state in pairs (_slotState.states) do
     if state._id == id then
       return state._enabled
     end
@@ -34,7 +34,7 @@ function State.isEnabled(id)
 end
 
 function State.get(id)
-  for index, state in pairs (_slotState.states) do
+  for _, state in pairs (_slotState.states) do
     if state._id == id then
       return state
     end
@@ -42,7 +42,7 @@ function State.get(id)
 end
 
 function State.enable(id)
-  for index, state in pairs (_slotState.states) do
+  for _, state in pairs (_slotState.states) do
     if state._id == id then
       log.trace(string.format("Starting %s state", id))
       local _ = state.enable and state:enable() -- Run if exists
@@ -52,7 +52,7 @@ function State.enable(id)
 end
 
 function State.disable(id)
-  for index, state in pairs (_slotState.states) do
+  for _, state in pairs (_slotState.states) do
     if state._id == id then
       local disabled = true
 
@@ -70,7 +70,7 @@ function State.disable(id)
 end
 
 function State.toggle(id)
-  for index, state in pairs (_slotState.states) do
+  for _, state in pairs (_slotState.states) do
     if state._id == id then
       if state._enabled then
         State.disable(id)
