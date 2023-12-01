@@ -8,6 +8,10 @@ function State.add(class, id, index)
   log.trace(string.format("Loading %s state", id))
   local _ = class.load and class:load() -- Run if exists
 
+  if index ~= nil and (type(index) ~= "number" or index ~= math.floor(index)) then -- Check if it's not nil/int
+    log.warn("The usage of a non-numeric key for a state is NOT recommended!")
+  end
+
   if index == nil or _slotState.states[index] ~= nil then
     if index ~= nil then
       log.warn(string.format("Key %s is already taken", id))
@@ -15,7 +19,7 @@ function State.add(class, id, index)
 
     table.insert(_slotState.states, class)
     return #_slotState.states
-  else -- an index was given but it's already taken
+  else -- an index was given and it was not taken yet
     _slotState.states[index] = class
     return index
   end

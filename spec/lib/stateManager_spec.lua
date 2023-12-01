@@ -18,7 +18,7 @@ describe("[#lib] stateManager", function()
     assert.is_table(_slotState.states)
   end)
 
-  describe("by adding states", function()
+  describe("adding states", function()
     before_each(function()
       blankState = {
         load = function() end,
@@ -50,11 +50,20 @@ describe("[#lib] stateManager", function()
 
       it("should complain if a non-numeric key is given, but proceed with the operation", function()
         stub(log, "warn")
-        State.add(differentState, "non-numeric", "key")
 
-        assert.are.equal(differentState, _slotState.states["key"])
-        assert.stub(log.warn).was.called()
-        assert.stub(log.warn).was.called("The usage of a non-numeric key for a state is NOT recommended!")
+        State.add(blankState, "empty")
+        State.add(blankState, "numeric", 90)
+
+        assert.stub(log.warn).was.not_called()
+
+        State.add(blankState, "string", "key")
+        State.add(blankState, "decimal", 9.1)
+        State.add(blankState, "boolean", true)
+        State.add(blankState, "boolean", false)
+
+        assert.are.equal(blankState, _slotState.states["key"])
+        assert.stub(log.warn).was.called(4)
+        assert.stub(log.warn).was.called_with("The usage of a non-numeric key for a state is NOT recommended!")
 
         log.warn:revert()
       end)
@@ -77,7 +86,7 @@ describe("[#lib] stateManager", function()
 
       it("should return the assigned index", function()
         local freeIndex = State.add(blankState, "freeIndex", 20)
-        local takenIndex = State.add({a = "a"}, "takenIndex", 20)
+        local takenIndex = State.add({attr = "value"}, "takenIndex", 20)
 
         assert.are_number(freeIndex, takenIndex)
         assert.are_equal(freeIndex, 20)
@@ -85,4 +94,23 @@ describe("[#lib] stateManager", function()
       end)
     end)
   end)
+
+  pending("enabling a state by its id")
+
+  pending("disabling a state by its id")
+
+  pending("toggling a state by its id")
+
+  it("should inform if a state is enabled by its id", function()
+    State.add({}, "enabledState")
+    assert.not_truthy(State.isEnabled("enabledState"))
+
+    State.enable("enabledState")
+    assert.truthy(State.isEnabled("enabledState"))
+  end)
+
+  pending("should return a state by its id")
+
+  pending("destroying a state by its id")
+
 end)
