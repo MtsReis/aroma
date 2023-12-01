@@ -1,0 +1,10 @@
+# Dist files
+lib/cimgui/shared/
+
+# Generated during development
+output/
+luacov*
+
+# Generated during execution
+controls.cfg
+settings.cfg
