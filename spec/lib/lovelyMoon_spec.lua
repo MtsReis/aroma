@@ -1,0 +1,5 @@
+describe("[#lib] lovelyMoon", function()
+  describe("by updating a state", function()
+    pending("should call the methods in order")
+  end)
+end)
