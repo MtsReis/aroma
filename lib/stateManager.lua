@@ -43,7 +43,7 @@ end
 
 function State.enable(id)
   for _, state in pairs (_slotState.states) do
-    if state._id == id then
+    if state._id == id and not state._enabled then
       log.trace(string.format("Starting %s state", id))
       local _ = state.enable and state:enable() -- Run if exists
       state._enabled = true
@@ -53,11 +53,11 @@ end
 
 function State.disable(id)
   for _, state in pairs (_slotState.states) do
-    if state._id == id then
+    if state._id == id and state._enabled then
       local disabled = true
 
       if state.disable and state:disable() == false then
-        log.trace(string.format("%s state isn't ready to be disabled", id))
+        log.info(string.format("%s state isn't ready to be disabled", id))
         disabled = false
       end
 

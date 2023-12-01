@@ -8,7 +8,8 @@ describe("[#lib] stateManager", function()
     -- Dummies for dependencies
     _G.log = {
       trace = function() end,
-      warn = function() end
+      warn = function() end,
+      info = function() end
     }
   end)
 
@@ -27,7 +28,7 @@ describe("[#lib] stateManager", function()
     end)
 
     it("should insert a state to the 'states' table", function()
-      State.add(blankState, "name")
+      State.add(blankState, "mainState")
 
       assert.combinators.match({t.contains(blankState)}, _slotState.states)
     end)
@@ -38,7 +39,8 @@ describe("[#lib] stateManager", function()
       State.add(blankState, "stub")
 
       assert.stub(blankState.load).was.called()
-      assert.stub(blankState.load).was.called_with(match.is_ref(blankState)) -- Called with self
+      -- Called with self
+      assert.stub(blankState.load).was.called_with(match.is_ref(blankState))
 
       blankState.load:revert()
     end)
@@ -95,11 +97,89 @@ describe("[#lib] stateManager", function()
     end)
   end)
 
-  pending("enabling a state by its id")
+  describe("enabling a state by its id", function()
+    assert.is_false(_slotState.states[1]._enabled)
+    State.enable(_slotState.states[1]._id)
+    assert.is_true(_slotState.states[1]._enabled)
 
-  pending("disabling a state by its id")
+    it("should call the 'enable' method of the state ONLY if it was NOT enabled already", function()
+      stub(_slotState.states[1], "enable")
 
-  pending("toggling a state by its id")
+      State.enable(_slotState.states[1]._id)
+      assert.stub(_slotState.states[1].enable).was.not_called()
+
+      _slotState.states[1]._enabled = false
+      State.enable(_slotState.states[1]._id)
+      assert.stub(_slotState.states[1].enable).was.called(1)
+      -- Called with self
+      assert.stub(_slotState.states[1].enable).was.called_with(match.is_ref(_slotState.states[1]))
+
+      _slotState.states[1].enable:revert()
+    end)
+  end)
+
+  describe("trying to disable a state", function()
+    it("should call the 'disable' method of the state ONLY if it was NOT disabled already", function()
+      stub(_slotState.states[1], "disable")
+
+      _slotState.states[1]._enabled = false
+      State.disable(_slotState.states[1]._id)
+      assert.stub(_slotState.states[1].disable).was.not_called()
+
+      _slotState.states[1]._enabled = true
+      State.disable(_slotState.states[1]._id)
+      assert.stub(_slotState.states[1].disable).was.called(1)
+
+      _slotState.states[1].disable:revert()
+    end)
+
+    it("should give an info if the state is NOT ready to be disabled", function()
+      stub(log, "info")
+
+      -- Stub out the disable method of state ready to be disabled
+      _slotState.states[1].disable = function() end
+      _slotState.states[1]._enabled = true
+
+      State.disable(_slotState.states[1]._id)
+      assert.stub(log.info).was.not_called()
+
+      -- Stub out the disable method of state NOT ready to be disabled
+      _slotState.states[1].disable = function() return false end
+      _slotState.states[1]._enabled = true
+
+      State.disable(_slotState.states[1]._id)
+      assert.stub(log.info).was.called(1)
+
+      log.info:revert()
+    end)
+  end)
+
+  describe("toggling a state by its id", function()
+    _slotState.states[1].disable = nil -- Make sure it's ready to disable
+    local wasEnabled = _slotState.states[1]._enabled
+
+    State.toggle(_slotState.states[1]._id)
+    assert.are.not_equal(_slotState.states[1]._enabled, wasEnabled)
+
+    it("should call the 'disable'/'enable' method of the state, accordingly", function()
+      stub(_slotState.states[1], "enable")
+      stub(_slotState.states[1], "disable")
+      _slotState.states[1]._enabled = false
+
+      State.toggle(_slotState.states[1]._id)
+      assert.stub(_slotState.states[1].enable).was.called(1)
+      assert.stub(_slotState.states[1].disable).was.called(0)
+
+      _slotState.states[1].enable:clear()
+
+      State.toggle(_slotState.states[1]._id)
+      assert.stub(_slotState.states[1].enable).was.called(0)
+      assert.stub(_slotState.states[1].disable).was.called(1)
+
+      _slotState.states[1].enable:revert()
+      _slotState.states[1].disable:revert()
+    end)
+  end)
 
   it("should inform if a state is enabled by its id", function()
     State.add({}, "enabledState")
@@ -109,7 +189,12 @@ describe("[#lib] stateManager", function()
     assert.truthy(State.isEnabled("enabledState"))
   end)
 
-  pending("should return a state by its id")
+  it("should return a state by its id", function()
+    local newState = {attr = "uniqueAttr"}
+    State.add(newState, "newState")
+
+    assert.combinators.match(t.contains(newState), State.get("newState"))
+  end)
 
   pending("destroying a state by its id")
 
