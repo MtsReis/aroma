@@ -6,3 +6,10 @@ Additional 3rd party libs:
  - [cimgui-love](https://github.com/apicici/cimgui-love)
  - [i18n.lua](https://github.com/kikito/i18n.lua)
  - [Middleclass](https://github.com/kikito/middleclass)
+
+Optional test dependencies:
+ - busted
+ - luacheck
+ - luacov
+ - luacov-html
+ - matcher_combinators
