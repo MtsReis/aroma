@@ -1,0 +1,22 @@
+exclude = {
+  -- These run with busted
+  "busted.+$",
+  "luarocks.+$",
+  "lua%/.+$",
+  "spec%/.+$",
+
+  -- Libs we don't need to test
+  "lib%/cimgui%/.+$",
+  "lib%/i18n%/.+$",
+  "lib%/pl%/.+$",
+}
+
+runreport = true
+includeuntestedfiles = true
+deletestats = true -- Stats are necessary for luacov-console
+
+reporter = "html"
+html = {
+  outputDirectory = 'output/coverage/report',
+  projectName = "Aroma"
+}
