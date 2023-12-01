@@ -4,5 +4,5 @@ stds.aroma = {
 }
 
 std = "luajit+lua52+love+aroma"
-exclude_files = {"lib/*", "output/"}
+exclude_files = {"lib/*", "output/", "spec/"}
 allow_defined_top = true
