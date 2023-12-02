@@ -1,4 +1,5 @@
 # Aroma editor
+![Unit Tests](https://github.com/MtsReis/aroma/actions/workflows/tests.yml/badge.svg?event=push)
 
 Made with a modified version of [Luna](https://github.com/MtsReis/luna) as a boilerplate
 
