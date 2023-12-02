@@ -1,5 +1,5 @@
 # Aroma editor
-![Unit Tests](https://github.com/MtsReis/aroma/actions/workflows/tests.yml/badge.svg?event=push)
+[![Unit Tests](https://img.shields.io/github/actions/workflow/status/MtsReis/aroma/tests.yml?label=Unit%20Tests&logo=Lua)](https://github.com/MtsReis/aroma/actions?workflow=Tests)
 
 Made with a modified version of [Luna](https://github.com/MtsReis/luna) as a boilerplate
 

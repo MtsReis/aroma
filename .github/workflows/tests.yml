@@ -25,4 +25,4 @@ jobs:
           luarocks install matcher_combinators
       - name: Busted Tests
         run: |
-          busted
+          busted -Xoutput --color
