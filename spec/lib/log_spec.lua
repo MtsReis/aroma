@@ -41,8 +41,8 @@ describe("[#lib] log.lua", function()
     end)
 
     it("should append the message to the log file through love.filesystem", function()
-      log[levels[1]]("Another message")
-      assert.stub(love.filesystem.append).was.called_with(match.is_equal("fileName"), match.is.in_text("Another message"))
+      log[levels[1]]("Multiple messages", "messages count: ", 2)
+      assert.stub(love.filesystem.append).was.called_with(match.is_equal("fileName"), match.is.in_text("Multiple messages"))
     end)
 
     it("should NOT log lower levels", function()
