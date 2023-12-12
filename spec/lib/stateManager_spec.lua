@@ -251,6 +251,4 @@ describe("[#lib] stateManager", function()
       assert.falsy(success)
     end)
   end)
-  
-
 end)
