@@ -10,7 +10,11 @@ exclude = {
   "lib%/i18n%/.+$",
   "lib%/pl%/.+$",
   "lib%/lovebird",
-  "lib%/middleclass"
+  "lib%/middleclass",
+  "lib%/LIP",
+
+  -- Additional dev dirs
+  "output"
 }
 
 runreport = true
