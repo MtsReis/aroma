@@ -1,28 +1,86 @@
 _slotState = _slotState or {states = {}}
 local StateManager = {}
 
+--[[ Metamethods ]]
+local lastestIndex
+local states = {}
+local indices = {}
+
+local pairsIter = function(t)
+  local function iter(t, iSet)
+    i = iSet.i + 1
+
+    if indices[i] ~= nil then
+      return {k = indices[i], i = i}, t[indices[i]]
+    end
+  end
+
+  return iter, t, {i = 0}
+end
+
+setmetatable(_slotState.states, {
+  __newindex = function(t, k, v)
+    if t[k] ~= nil and v ~= nil then
+      log.warn(string.format("Key '%s' is already taken", k))
+      k = "auto"
+    end
+
+    if type(k) == "number" and k == math.floor(k) then
+      states[k] = v
+
+      if v ~= nil then
+        table.insert(indices, k)
+        lastestIndex = k
+      else
+        for i = 1, #indices do
+          if indices[i] == k then
+            table.remove(indices, i)
+            lastestIndex = nil
+            break
+          end
+        end
+      end
+    else
+      assert(k == "auto", "States can't have a non-integer index "..type(k)..k)
+
+      for i = 1, #indices + 1 do
+        if i ~= indices[i] then
+          table.insert(indices, i)
+
+          states[i] = v
+          lastestIndex = i
+          break
+        end
+      end
+    end
+
+    table.sort(indices)
+  end,
+
+  __index = function (t, k)
+    return states[k]
+  end,
+
+  __ipairs = pairsIter,
+  __pairs = pairsIter,
+
+  __len = function(t)
+    return #indices
+  end
+})
+
 function StateManager.add(class, id, index)
+  index = index == nil and "auto" or index
+
+  _slotState.states[index] = class
+
   class._enabled = false
   class._id = id
 
   log.trace(string.format("Loading state '%s'", id))
   local _ = class.load and class:load() -- Run if exists
 
-  if index ~= nil and (type(index) ~= "number" or index ~= math.floor(index)) then -- Check if it's not nil/int
-    log.warn("The usage of a non-numeric key for a state is NOT recommended!")
-  end
-
-  if index == nil or _slotState.states[index] ~= nil then
-    if index ~= nil then
-      log.warn(string.format("Key '%s' is already taken", id))
-    end
-
-    table.insert(_slotState.states, class)
-    return #_slotState.states
-  else -- an index was given and it was not taken yet
-    _slotState.states[index] = class
-    return index
-  end
+   return lastestIndex
 end
 
 function StateManager.isEnabled(id)
@@ -93,15 +151,15 @@ function StateManager.toggle(id)
 end
 
 function StateManager.destroy(id)
-  for index, state in pairs (_slotState.states) do
+  for iSet, state in pairs(_slotState.states) do
     if state._id == id then
       if StateManager.disable(id) then -- Try to disable the state first
         log.trace(string.format("Destroying %s state", id))
         local _ = state.close and state:close() -- Run if exists
-        _slotState.states[index] = nil
+        _slotState.states[iSet.k] = nil
       end
 
-      return _slotState.states[index] == nil
+      return _slotState.states[iSet.k] == nil
     end
   end
 
