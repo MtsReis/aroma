@@ -85,7 +85,7 @@ describe("[#lib] stateManager", function()
 
         assert.are_number(freeIndex, takenIndex)
         assert.are_equal(freeIndex, 20)
-        assert.are.not_equal(takenIndex, 21)
+        assert.are.not_equal(takenIndex, 20)
       end)
     end)
   end)
