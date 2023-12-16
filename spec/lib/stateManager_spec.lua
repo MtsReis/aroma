@@ -9,7 +9,8 @@ describe("[#lib] stateManager", function()
     _G.log = {
       trace = function() end,
       warn = function() end,
-      info = function() end
+      info = function() end,
+      error = function() end,
     }
   end)
 
@@ -30,8 +31,7 @@ describe("[#lib] stateManager", function()
 
     it("should insert a state to the 'states' table", function()
       StateManager.add(blankState, "mainState")
-
-      assert.combinators.match({t.contains(blankState)}, _slotState.states)
+      assert.combinators.match(t.contains({blankState}), _slotState.states)
     end)
 
     it("should call the 'load' method of the added state", function()
@@ -51,24 +51,16 @@ describe("[#lib] stateManager", function()
         load = function() end
       }
 
-      it("should complain if a non-numeric key is given, but proceed with the operation", function()
-        stub(log, "warn")
+      it("should NOT allow non-integer keys", function()
+        assert.has_no.errors(function() StateManager.add(blankState, "empty") end)
+        assert.has_no.errors(function() StateManager.add(blankState, "numeric", 90) end)
 
-        StateManager.add(blankState, "empty")
-        StateManager.add(blankState, "numeric", 90)
+        assert.has_error(function() StateManager.add(blankState, "string", "key") end)
+        assert.has_error(function() StateManager.add(blankState, "decimal", 9.1) end)
+        assert.has_error(function() StateManager.add(blankState, "boolean", true) end)
+        assert.has_error(function() StateManager.add(blankState, "boolean", false) end)
 
-        assert.stub(log.warn).was.not_called()
-
-        StateManager.add(blankState, "string", "key")
-        StateManager.add(blankState, "decimal", 9.1)
-        StateManager.add(blankState, "boolean", true)
-        StateManager.add(blankState, "boolean", false)
-
-        assert.are.equal(blankState, _slotState.states["key"])
-        assert.stub(log.warn).was.called(4)
-        assert.stub(log.warn).was.called_with("The usage of a non-numeric key for a state is NOT recommended!")
-
-        log.warn:revert()
+        assert.are.equal(blankState, _slotState.states[90])
       end)
 
       it("should assign an index that's currently empty", function()
@@ -93,7 +85,7 @@ describe("[#lib] stateManager", function()
 
         assert.are_number(freeIndex, takenIndex)
         assert.are_equal(freeIndex, 20)
-        assert.are_equal(takenIndex, #_slotState.states)
+        assert.are.not_equal(takenIndex, 21)
       end)
     end)
   end)
@@ -250,5 +242,43 @@ describe("[#lib] stateManager", function()
       success = StateManager.destroy("stateToDestroy")
       assert.falsy(success)
     end)
+  end)
+
+  --[[ StateManager.states' metatable ]]
+  it("should track the correct order of execution", function()
+    -- Reset the Global
+    package.loaded["lib.stateManager"] = false
+    _G._slotState = nil
+    require "lib.stateManager"
+
+    StateManager.add({intendedIndex = 1}, "1st")
+    StateManager.add({intendedIndex = 2}, "2nd")
+    StateManager.add({intendedIndex = 5}, "5th", 5)
+    StateManager.add({intendedIndex = 7}, "Last", 50)
+    StateManager.add({intendedIndex = 3}, "3rd", 3)
+    StateManager.add({intendedIndex = 4}, "4th")
+    StateManager.add({intendedIndex = 6}, "6th", 3)
+
+    for iSet, state in ipairs(_slotState.states) do
+      assert.are_equal(iSet.i, state.intendedIndex)
+    end
+
+     StateManager.destroy("1st")
+     StateManager.destroy("2nd")
+
+     for iSet, state in ipairs(_slotState.states) do
+       assert.are_equal(iSet.i, state.intendedIndex - 2)
+     end
+
+     StateManager.add({intendedIndex = 2}, "2nd again", 2)
+     StateManager.add({intendedIndex = 1}, "1st again")
+
+     for iSet, state in ipairs(_slotState.states) do
+      assert.are_equal(iSet.i, state.intendedIndex)
+    end
+  end)
+
+  it("should keep track of the amount of loaded states", function()
+    assert.are_equal(7, #_slotState.states)
   end)
 end)
