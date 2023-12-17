@@ -2,20 +2,25 @@ _slotState = _slotState or {states = {}}
 local StateManager = {}
 
 --[[ Metamethods ]]
-local lastestIndex
+local latestIndex
 local states = {}
 local indices = {}
 
 local pairsIter = function(t)
   local function iter(t, iSet)
-    i = iSet.i + 1
+    local trueIndex = iSet._trueIndex - 1
+    local invIndex = #indices - trueIndex + 1
 
-    if indices[i] ~= nil then
-      return {k = indices[i], i = i}, t[indices[i]]
+    if indices[trueIndex] ~= nil then
+      return {
+        _trueIndex = trueIndex,
+        k = indices[trueIndex],
+        i = invIndex
+      }, t[indices[trueIndex]]
     end
   end
 
-  return iter, t, {i = 0}
+  return iter, t, {_trueIndex = #indices + 1}
 end
 
 setmetatable(_slotState.states, {
@@ -30,31 +35,34 @@ setmetatable(_slotState.states, {
 
       if v ~= nil then
         table.insert(indices, k)
-        lastestIndex = k
+        table.sort(indices, function(a, b) return a > b end)
+        latestIndex = k
       else
         for i = 1, #indices do
           if indices[i] == k then
             table.remove(indices, i)
-            lastestIndex = nil
+            latestIndex = nil
             break
           end
         end
       end
     else
-      assert(k == "auto", "States can't have a non-integer index "..type(k)..k)
+      assert(
+        k == "auto",
+        string.format("States can't have a non-integer index ([%s] => %s)", type(k), k)
+      )
 
-      for i = 1, #indices + 1 do
-        if i ~= indices[i] then
-          table.insert(indices, i)
-
+      for i = 1, #states + 1 do
+        local invIndex = #indices - i + 1 -- +1 since arrays start at 1
+        if i ~= indices[invIndex] then
+          table.insert(indices, invIndex + 1, i)
           states[i] = v
-          lastestIndex = i
+          latestIndex = i
           break
         end
       end
     end
 
-    table.sort(indices)
   end,
 
   __index = function (t, k)
@@ -65,7 +73,21 @@ setmetatable(_slotState.states, {
   __pairs = pairsIter,
 
   __len = function(t)
-    return #indices
+    if indices[1] then
+      return indices[1]
+    end
+
+    return 0
+  end
+})
+
+setmetatable(states, {
+  __len = function(t)
+    if indices[1] then
+      return indices[1]
+    end
+
+    return 0
   end
 })
 
@@ -80,7 +102,7 @@ function StateManager.add(class, id, index)
   log.trace(string.format("Loading state '%s'", id))
   local _ = class.load and class:load() -- Run if exists
 
-   return lastestIndex
+   return latestIndex
 end
 
 function StateManager.isEnabled(id)
