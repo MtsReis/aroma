@@ -71,9 +71,9 @@ describe("[#lib] stateManager", function()
 
       it("should NOT override an index that's already taken", function()
         stub(log, "warn")
-        StateManager.add(differentState, "takenIndex", 1)
+        StateManager.add(differentState, "takenIndex", #_slotState.states)
 
-        assert.are.not_equal(differentState, _slotState.states[1])
+        assert.are.not_equal(differentState, _slotState.states[#_slotState.states])
         assert.stub(log.warn).was.called()
 
         log.warn:revert()
@@ -83,9 +83,9 @@ describe("[#lib] stateManager", function()
         local freeIndex = StateManager.add(blankState, "freeIndex", 20)
         local takenIndex = StateManager.add({attr = "value"}, "takenIndex", 20)
 
-        assert.are_number(freeIndex, takenIndex)
-        assert.are_equal(freeIndex, 20)
-        assert.are.not_equal(takenIndex, 20)
+        assert.are_number(takenIndex, freeIndex)
+        assert.are_equal(20, freeIndex)
+        assert.are.not_equal(20, takenIndex)
       end)
     end)
   end)
@@ -242,6 +242,30 @@ describe("[#lib] stateManager", function()
       success = StateManager.destroy("stateToDestroy")
       assert.falsy(success)
     end)
+
+    it("should not break iterations", function ()
+      local destroyThis = {
+        update = spy.new(function()
+          StateManager.destroy("destroyThis")
+        end)
+      }
+      local thisMUSTRun = { update = spy.new(function() end) }
+      local thisRunsToo = { update = spy.new(function() end) }
+
+      StateManager.add(destroyThis, "destroyThis", 100)
+      StateManager.add(thisMUSTRun, "thisMUSTRun", 101)
+      StateManager.add(thisRunsToo, "thisRunsToo", 102)
+
+      for _, s in ipairs(_slotState.states) do
+        if s.update then
+          s.update()
+        end
+      end
+
+      assert.spy(destroyThis.update).was.called(1)
+      assert.spy(thisMUSTRun.update).was.called(1)
+      assert.spy(thisRunsToo.update).was.called(1)
+    end)
   end)
 
   --[[ StateManager.states' metatable ]]
@@ -260,7 +284,7 @@ describe("[#lib] stateManager", function()
     StateManager.add({intendedIndex = 6}, "6th", 3)
 
     for iSet, state in ipairs(_slotState.states) do
-      assert.are_equal(iSet.i, state.intendedIndex)
+      assert.are_equal(state.intendedIndex, iSet.i)
     end
 
      StateManager.destroy("1st")
@@ -279,6 +303,6 @@ describe("[#lib] stateManager", function()
   end)
 
   it("should keep track of the amount of loaded states", function()
-    assert.are_equal(7, #_slotState.states)
+    assert.are_equal(50, #_slotState.states)
   end)
 end)
