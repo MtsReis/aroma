@@ -1,6 +1,5 @@
 -- State controlling the bare minimum for the vis execution
 local GUI = class('GUI')
-local welcomeMode = require 'states.gui.welcome'
 local projectMode = require 'states.gui.project'
 local options = {}
 
@@ -18,7 +17,7 @@ function GUI.enable()
   io.ConfigWindowsMoveFromTitleBarOnly = true
 end
 
-function GUI:update(dt)
+function GUI.update(_, dt)
   imgui.love.Update(dt)
   imgui.NewFrame()
 end
@@ -64,58 +63,58 @@ function GUI.draw()
   imgui.love.RenderDrawLists()
 end
 
-function GUI:keypressed(key)
+function GUI.keypressed(_, key)
   imgui.love.KeyPressed(key)
 
-  if not imgui.love.GetWantCaptureKeyboard() then
+  if not imgui.love.GetWantCaptureKeyboard() then -- luacheck: ignore
     -- custom behaviour
   end
 end
 
-function GUI:keyreleased(key)
+function GUI.keyreleased(_, key)
   imgui.love.KeyReleased(key)
 
-  if not imgui.love.GetWantCaptureKeyboard() then
+  if not imgui.love.GetWantCaptureKeyboard() then -- luacheck: ignore
     -- custom behaviour
   end
 end
 
-function GUI:textinput(text)
+function GUI.textinput(_, text)
   imgui.love.TextInput(text)
 
-  if imgui.love.GetWantCaptureKeyboard() then
+  if imgui.love.GetWantCaptureKeyboard() then -- luacheck: ignore
     -- custom behaviour
   end
 end
 
-function GUI:mousemoved(x, y)
+function GUI.mousemoved(_, x, y)
   imgui.love.MouseMoved(x, y)
 
-  if not imgui.love.GetWantCaptureMouse() then
+  if not imgui.love.GetWantCaptureMouse() then -- luacheck: ignore
     -- custom behaviour
   end
 end
 
-function GUI:mousepressed(x, y, button)
+function GUI.mousepressed(_, _, _, button)
   imgui.love.MousePressed(button)
 
-  if not imgui.love.GetWantCaptureMouse() then
+  if not imgui.love.GetWantCaptureMouse() then -- luacheck: ignore
     -- custom behaviour
   end
 end
 
-function GUI:mousereleased(x, y, button)
+function GUI.mousereleased(_, _, _, button)
   imgui.love.MouseReleased(button)
 
-  if not imgui.love.GetWantCaptureMouse() then
+  if not imgui.love.GetWantCaptureMouse() then -- luacheck: ignore
     -- custom behaviour
   end
 end
 
-function GUI:wheelmoved(x, y)
+function GUI.wheelmoved(_, x, y)
   imgui.love.WheelMoved(x, y)
 
-  if not imgui.love.GetWantCaptureMouse() then
+  if not imgui.love.GetWantCaptureMouse() then -- luacheck: ignore
     -- custom behaviour
   end
 end

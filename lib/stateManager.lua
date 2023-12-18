@@ -6,7 +6,7 @@ local latestIndex
 local states = {}
 local indices = {}
 
-local pairsIter = function(t)
+local pairsIter = function(table)
   local function iter(t, iSet)
     local trueIndex = iSet._trueIndex - 1
     local invIndex = #indices - trueIndex + 1
@@ -20,7 +20,7 @@ local pairsIter = function(t)
     end
   end
 
-  return iter, t, {_trueIndex = #indices + 1}
+  return iter, table, {_trueIndex = #indices + 1}
 end
 
 setmetatable(_slotState.states, {
@@ -65,14 +65,14 @@ setmetatable(_slotState.states, {
 
   end,
 
-  __index = function (t, k)
+  __index = function (_, k)
     return states[k]
   end,
 
   __ipairs = pairsIter,
   __pairs = pairsIter,
 
-  __len = function(t)
+  __len = function()
     if indices[1] then
       return indices[1]
     end
@@ -82,7 +82,7 @@ setmetatable(_slotState.states, {
 })
 
 setmetatable(states, {
-  __len = function(t)
+  __len = function()
     if indices[1] then
       return indices[1]
     end
@@ -106,7 +106,7 @@ function StateManager.add(class, id, index)
 end
 
 function StateManager.isEnabled(id)
-  for _, state in pairs (_slotState.states) do
+  for _, state in pairs(_slotState.states) do
     if state._id == id then
       return state._enabled
     end
@@ -114,7 +114,7 @@ function StateManager.isEnabled(id)
 end
 
 function StateManager.get(id)
-  for _, state in pairs (_slotState.states) do
+  for _, state in pairs(_slotState.states) do
     if state._id == id then
       return state
     end
@@ -122,7 +122,7 @@ function StateManager.get(id)
 end
 
 function StateManager.enable(id)
-  for _, state in pairs (_slotState.states) do
+  for _, state in pairs(_slotState.states) do
     if state._id == id and not state._enabled then
       log.trace(string.format("Starting state '%s'", id))
       local _ = state.enable and state:enable() -- Run if exists
@@ -136,7 +136,7 @@ function StateManager.enable(id)
 end
 
 function StateManager.disable(id)
-  for _, state in pairs (_slotState.states) do
+  for _, state in pairs(_slotState.states) do
     if state._id == id then
       if state._enabled then
         local disabled = true
@@ -161,7 +161,7 @@ function StateManager.disable(id)
 end
 
 function StateManager.toggle(id)
-  for _, state in pairs (_slotState.states) do
+  for _, state in pairs(_slotState.states) do
     if state._id == id then
       if state._enabled then
         return StateManager.disable(id)
@@ -176,7 +176,7 @@ function StateManager.destroy(id)
   for iSet, state in pairs(_slotState.states) do
     if state._id == id then
       if StateManager.disable(id) then -- Try to disable the state first
-        log.trace(string.format("Destroying %s state", id))
+        log.trace(string.format("Destroying state '%s'", id))
         local _ = state.close and state:close() -- Run if exists
         _slotState.states[iSet.k] = nil
       end

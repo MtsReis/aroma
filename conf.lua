@@ -6,9 +6,6 @@ log = require 'lib.log'
 i18n = require 'lib.i18n'
 state = require 'lib.stateManager'
 
--- Direct access to some convenient functions
-pd = require 'lib.pl.pretty'.dump
-pw = require 'lib.pl.pretty'.write
 pl.stringx.import() -- Bring the stringx methods into the standard string table
 
 -- Init specific config
