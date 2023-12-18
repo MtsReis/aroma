@@ -26,6 +26,10 @@ jobs:
         run: |
           luarocks install busted
           luarocks install matcher_combinators
+          luarocks install luacheck
+      - name: Lint analysis
+        run: |
+          luacheck --quiet --ranges .
       - name: Busted Tests
         run: |
           busted --output=utfTerminal -Xoutput --color
