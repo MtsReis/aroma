@@ -22,7 +22,7 @@ jobs:
           luaCompileFlags: XCFLAGS+="-DLUAJIT_ENABLE_LUA52COMPAT"
       - name: Install LuaRocks
         uses: leafo/gh-actions-luarocks@v4.3.0
-      - name: install necessary rocks
+      - name: Install necessary rocks
         run: |
           luarocks install busted
           luarocks install matcher_combinators
@@ -30,6 +30,6 @@ jobs:
       - name: Lint analysis
         run: |
           luacheck --quiet --ranges .
-      - name: Busted Tests
+      - name: Busted tests
         run: |
           busted --output=utfTerminal -Xoutput --color
